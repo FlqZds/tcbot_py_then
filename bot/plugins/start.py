@@ -2,14 +2,14 @@ from telebot import types
 from bot.handler_type import PluginInterface
 from pybt.system import System
 from pybt.sites import Sites
-from bot.config import URL,KEY
+from bot.config import URL,KEY,HELP
 class StartPlugin(PluginInterface):
     command = 'start'
     def handler_command(self,bot,message):
         markup = types.InlineKeyboardMarkup()
         itembtn1 = types.InlineKeyboardButton('tcmiku的档案库', url='https://tcmiku.github.io')
         # 返回callback_data一个 1-64字节的数据
-        itembtn2 = types.InlineKeyboardButton('帮助信息', callback_data="各种帮助信息")
+        itembtn2 = types.InlineKeyboardButton('帮助信息', callback_data=HELP)
         markup.add(itembtn1, itembtn2)
         bot.send_message(message.chat.id, f"启动成功欢迎用户: {message.chat.username}", reply_markup=markup)
 
@@ -25,6 +25,8 @@ class StartPlugin(PluginInterface):
                 systeam = bt.bt_systeam()
                 sys_out=f"当前系统为:{systeam['system']}\nCPU核心数:{systeam['cpuNum']}\n"
                 bot.send_message(message.chat.id,sys_out)
+        elif message.text.startswith('#'):
+            command = message.text.split(' ',1)[0][1:]
 
 class bt_api:
     def __init__(self):

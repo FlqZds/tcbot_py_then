@@ -14,7 +14,14 @@ Banner = """\033[0;34m
 TOKEN = "7002508823:AAFPmQgEr2P5PoAoEbnaYxhq0734eHH02RI"
 MYSQL = ""
 
+#网页地址配置
+File_HTEML = '../html'
+
 
 #宝塔api配置
 URL = "http://47.94.149.204:35560/"
 KEY = "dMggIkipqz8bZyDhXLTPlpnTX1PdtHNE"
+
+
+#帮助信息设置
+HELP = "help文档"
