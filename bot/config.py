@@ -10,7 +10,11 @@ Banner = """\033[0;34m
                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                             佛祖保佑       永不宕机     永无BUG   \033[0m                                                     
         """
-
+#电报机器人配置
 TOKEN = "7002508823:AAFPmQgEr2P5PoAoEbnaYxhq0734eHH02RI"
-
 MYSQL = ""
+
+
+#宝塔api配置
+URL = "http://47.94.149.204:35560/"
+KEY = "dMggIkipqz8bZyDhXLTPlpnTX1PdtHNE"

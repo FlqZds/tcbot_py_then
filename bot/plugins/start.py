@@ -1,5 +1,7 @@
 from telebot import types
 from bot.handler_type import PluginInterface
+from pybt.system import System
+from bot.config import URL,KEY
 class StartPlugin(PluginInterface):
     command = 'start'
     def handler_command(self,bot,message):
@@ -12,3 +14,23 @@ class StartPlugin(PluginInterface):
 
     def handler_back(self,bot,call):
         bot.send_message(call.message.chat.id, call.data)
+
+
+    def handle_message(self,bot,message):
+        if message.text.startswith('!'):
+            command = message.text.split(' ', 1)[0][1:]
+            bt = bt_api()
+            if command == '获取系统信息':
+                systeam = bt.bt_systeam()
+                sys_out=f"当前系统为 {systeam['system']}\nCPU核心数 {systeam['cpuNum']}\n"
+                bot.send_message(message.chat.id,sys_out)
+
+class bt_api:
+    def __init__(self):
+       self.Url = URL
+       self.Key = KEY
+
+    def bt_systeam(self):
+        systeam = System(self.Url,self.Key)
+        sys = systeam.get_system_total()
+        return sys
