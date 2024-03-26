@@ -1,6 +1,7 @@
 from telebot import types
 from bot.handler_type import PluginInterface
 from pybt.system import System
+from pybt.sites import Sites
 from bot.config import URL,KEY
 class StartPlugin(PluginInterface):
     command = 'start'
@@ -22,7 +23,7 @@ class StartPlugin(PluginInterface):
             bt = bt_api()
             if command == '获取系统信息':
                 systeam = bt.bt_systeam()
-                sys_out=f"当前系统为 {systeam['system']}\nCPU核心数 {systeam['cpuNum']}\n"
+                sys_out=f"当前系统为:{systeam['system']}\nCPU核心数:{systeam['cpuNum']}\n"
                 bot.send_message(message.chat.id,sys_out)
 
 class bt_api:
@@ -31,6 +32,17 @@ class bt_api:
        self.Key = KEY
 
     def bt_systeam(self):
-        systeam = System(self.Url,self.Key)
-        sys = systeam.get_system_total()
+        systeam_api = System(self.Url,self.Key)
+        sys = systeam_api.get_system_total()
         return sys
+
+    def bt_web(self):
+        websites = Sites(self.Url,self.Key)
+        webname = websites.websites()
+        print(webname)
+        web_index = websites.web_get_index(webname['data'][0]['name'])
+        print(web_index)
+
+if __name__ == '__main__':
+    bt = bt_api()
+    bt.bt_web()
