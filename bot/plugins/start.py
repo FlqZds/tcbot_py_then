@@ -2,7 +2,7 @@ from telebot import types
 from bot.handler_type import PluginInterface
 from pybt.system import System
 from pybt.sites import Sites
-from bot.config import URL,KEY,HELP,File_HTEML
+from bot.config import URL,KEY,HELP,File_HTEML,Admin
 from bs4 import BeautifulSoup
 import json
 import re
@@ -21,9 +21,7 @@ class StartPlugin(PluginInterface):
 
     #权限判断机制
     def admin_start(self,message):
-        with open('../date/ena.json',mode='r',encoding='utf-8') as j:
-            date = json.load(j)
-        if message.from_user.id in date['Admin']:
+        if message.from_user.id in Admin:
             return True
         else:
             return False
@@ -46,12 +44,10 @@ class authorityManagement:
         self.command = message.text.split(' ', 1)[0][1:]
         self.__admin_show()
         self.__admin_add()
-        with open('../date/ena.json',mode='r',encoding='utf-8') as j:
-            self.Admin = json.load(j)
 
     def __admin_show(self):
         if self.command == '管理员列表':
-            self.bot.send_message(self.message.chat.id,self.Admin)
+            self.bot.send_message(self.message.chat.id,Admin)
 
     def __admin_add(self):
         if self.command == '添加管理员':
@@ -61,8 +57,8 @@ class authorityManagement:
     def __admin_add_nextstep(self,message):
        self.bot.send_chat_action(message.chat.id, 'typing')
        if message.text.isdigit():
-           self.Admin.append(int(message.text))
-           print(self.Admin)
+           Admin.append(int(message.text))
+           print(Admin)
            self.bot.send_message(message.chat.id, "添加成功")
        else:
            self.bot.send_message(message.chat.id,"添加失败")

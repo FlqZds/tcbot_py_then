@@ -22,6 +22,8 @@ File_HTEML = '../../html'
 URL = "http://47.94.149.204:35560/"
 KEY = "dMggIkipqz8bZyDhXLTPlpnTX1PdtHNE"
 
+#权限管理机制
+Admin = [5594064503]
 
 #帮助信息设置
 HELP = "help文档"
