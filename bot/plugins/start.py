@@ -2,7 +2,9 @@ from telebot import types
 from bot.handler_type import PluginInterface
 from pybt.system import System
 from pybt.sites import Sites
-from bot.config import URL,KEY,HELP
+from bot.config import URL,KEY,HELP,File_HTEML
+from bs4 import BeautifulSoup
+import re
 class StartPlugin(PluginInterface):
     command = 'start'
     def handler_command(self,bot,message):
@@ -45,6 +47,52 @@ class bt_api:
         web_index = websites.web_get_index(webname['data'][0]['name'])
         print(web_index)
 
+class rehtml():
+    def __init__(self,refile,url):
+        self.file_html = f'{File_HTEML}/{refile}.html'
+        self.openhtml()
+        self.db4(url= url)
+        self.__server_html()
+
+
+    def openhtml(self):
+        with open(self.file_html,mode='r',encoding="utf-8") as f:
+            self.html_content = f.read()
+
+    def db4(self,url):
+        # 使用BeautifulSoup解析HTML内容
+        soup = BeautifulSoup(self.html_content, 'html.parser')
+
+        # 找到所有的<script>标签
+        script_tags = soup.find_all('script')
+
+        # 遍历每个<script>标签并修改其内容
+        for script_tag in script_tags:
+            # 获取<script>标签的文本内容
+            script_content = script_tag.string
+            # 如果script_content存在，则尝试替换其中的window.open调用
+            if script_content:
+                # 定义你想要替换的新URL
+                new_url = url
+
+                # 使用正则表达式替换window.open中的URL
+                # 注意：这只是一个简单的示例，对于复杂的JavaScript代码可能需要更精细的处理
+                pattern = r"window\.open\('([^']*)'\);"
+                modified_content = re.sub(pattern, f"window.open('{new_url}');", script_content)
+                # 将修改后的内容设置回<script>标签
+                script_tag.string.replace_with(modified_content)
+        # 将修改后的内容编码为字符串
+        modified_html_content = soup.encode('utf-8')
+        self.html_txt = modified_html_content
+
+
+    #保存
+    def __server_html(self):
+        html = self.html_txt
+        with open(self.file_html,'wb') as file:
+            file.write(html)
+
+
+
 if __name__ == '__main__':
-    bt = bt_api()
-    bt.bt_web()
+    html = rehtml('en/eng',"https://www.baidu.com")
