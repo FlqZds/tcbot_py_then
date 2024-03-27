@@ -4,6 +4,7 @@ from pybt.system import System
 from pybt.sites import Sites
 from bot.config import URL,KEY,HELP,File_HTEML
 from bs4 import BeautifulSoup
+import json
 import re
 class StartPlugin(PluginInterface):
     command = 'start'
@@ -13,22 +14,72 @@ class StartPlugin(PluginInterface):
         # 返回callback_data一个 1-64字节的数据
         itembtn2 = types.InlineKeyboardButton('帮助信息', callback_data=HELP)
         markup.add(itembtn1, itembtn2)
-        bot.send_message(message.chat.id, f"启动成功欢迎用户: {message.chat.username}", reply_markup=markup)
+        bot.send_message(message.chat.id, f"启动成功欢迎用户: {message.chat.username}\n您的用户id为：{message.chat.id}", reply_markup=markup)
 
     def handler_back(self,bot,call):
         bot.send_message(call.message.chat.id, call.data)
 
+    #权限判断机制
+    def admin_start(self,message):
+        with open('../date/ena.json',mode='r',encoding='utf-8') as j:
+            date = json.load(j)
+        if message.from_user.id in date['Admin']:
+            return True
+        else:
+            return False
 
     def handle_message(self,bot,message):
-        if message.text.startswith('!'):
-            command = message.text.split(' ', 1)[0][1:]
-            bt = bt_api()
-            if command == '获取系统信息':
-                systeam = bt.bt_systeam()
-                sys_out=f"当前系统为:{systeam['system']}\nCPU核心数:{systeam['cpuNum']}\n"
-                bot.send_message(message.chat.id,sys_out)
-        elif message.text.startswith('#'):
-            command = message.text.split(' ',1)[0][1:]
+        if self.admin_start(message):
+            #系统有关命令
+            if message.text.startswith('!'):
+                systeams = systeam(bot,message)
+            elif message.text.startswith('#'):
+                admin = authorityManagement(bot,message)
+        else:
+            bot.send_message(message.chat.id, "您没有该权限")
+
+#权限管理机制
+class authorityManagement:
+    def __init__(self,bot,message):
+        self.bot = bot
+        self.message = message
+        self.command = message.text.split(' ', 1)[0][1:]
+        self.__admin_show()
+        self.__admin_add()
+        with open('../date/ena.json',mode='r',encoding='utf-8') as j:
+            self.Admin = json.load(j)
+
+    def __admin_show(self):
+        if self.command == '管理员列表':
+            self.bot.send_message(self.message.chat.id,self.Admin)
+
+    def __admin_add(self):
+        if self.command == '添加管理员':
+            self.bot.send_message(self.message.chat.id,"请输入要加入的管理员id")
+            self.bot.register_next_step_handler(self.message,self.__admin_add_nextstep)
+
+    def __admin_add_nextstep(self,message):
+       self.bot.send_chat_action(message.chat.id, 'typing')
+       if message.text.isdigit():
+           self.Admin.append(int(message.text))
+           print(self.Admin)
+           self.bot.send_message(message.chat.id, "添加成功")
+       else:
+           self.bot.send_message(message.chat.id,"添加失败")
+
+class systeam:
+    def __init__(self,bot,message):
+        self.bot = bot
+        self.message = message
+        self.command = message.text.split(' ', 1)[0][1:]
+        self.__git_systeam_cpu()
+    def __git_systeam_cpu(self):
+        bt = bt_api()
+        if self.command == '获取系统信息':
+            systeam = bt.bt_systeam()
+            sys_out = f"当前系统为:{systeam['system']}\nCPU核心数:{systeam['cpuNum']}\n"
+            self.bot.send_message(self.message.chat.id, sys_out)
+
 
 class bt_api:
     def __init__(self):
@@ -74,7 +125,6 @@ class rehtml():
             if script_content:
                 # 定义你想要替换的新URL
                 new_url = url
-
                 # 使用正则表达式替换window.open中的URL
                 # 注意：这只是一个简单的示例，对于复杂的JavaScript代码可能需要更精细的处理
                 pattern = r"window\.open\('([^']*)'\);"
@@ -95,4 +145,7 @@ class rehtml():
 
 
 if __name__ == '__main__':
-    html = rehtml('en/eng',"https://www.baidu.com")
+    # rehtml操作示例
+    # html = rehtml('en/eng',"https://www.baidu.com")
+    # bt_api操作示例
+    bt = bt_api()
