@@ -15,7 +15,7 @@ TOKEN = "7002508823:AAFPmQgEr2P5PoAoEbnaYxhq0734eHH02RI"
 MYSQL = ""
 
 #网页地址配置
-File_HTEML = '../../html'
+File_HTEML = '../html'
 
 
 #宝塔api配置
