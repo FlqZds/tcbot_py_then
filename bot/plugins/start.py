@@ -12,12 +12,12 @@ class StartPlugin(PluginInterface):
         markup = types.InlineKeyboardMarkup()
         itembtn1 = types.InlineKeyboardButton('tcmiku的档案库', url='https://tcmiku.github.io')
         # 返回callback_data一个 1-64字节的数据
-        itembtn2 = types.InlineKeyboardButton('帮助信息', callback_data=HELP)
+        itembtn2 = types.InlineKeyboardButton('帮助信息', callback_data="help")
         markup.add(itembtn1, itembtn2)
         bot.send_message(message.chat.id, f"启动成功欢迎用户: {message.chat.username}\n您的用户id为：{message.chat.id}", reply_markup=markup)
 
     def handler_back(self,bot,call):
-        bot.send_message(call.message.chat.id, call.data)
+        bot.send_message(call.message.chat.id, HELP)
 
     #权限判断机制
     def admin_start(self,message):
@@ -51,7 +51,7 @@ class authorityManagement:
 
     def __admin_show(self):
         if self.command == '管理员列表':
-            self.bot.send_message(self.message.chat.id,Admin)
+            self.bot.send_message(self.message.chat.id,str(Admin))
 
     def __admin_add(self):
         if self.command == '添加管理员':
