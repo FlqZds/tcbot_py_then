@@ -26,6 +26,7 @@ class StartPlugin(PluginInterface):
         else:
             return False
 
+
     def handle_message(self,bot,message):
         if self.admin_start(message):
             #系统有关命令
