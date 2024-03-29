@@ -228,6 +228,7 @@ class meat:
                     img_tag['src'] = self.meat
 
                     # 将修改后的内容编码为字符串
+        modified_html_content = str(soup)
         modified_html_content = soup.encode('utf-8')
         self.html_txt = modified_html_content
 
