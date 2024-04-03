@@ -14,10 +14,21 @@ class StartPlugin(PluginInterface):
         # 返回callback_data一个 1-64字节的数据
         itembtn2 = types.InlineKeyboardButton('帮助信息', callback_data="help")
         markup.add(itembtn2)
+        self.open_ferst(bot,message)
         bot.send_message(message.chat.id, f"启动成功欢迎用户: {message.chat.username}\n您的用户id为：{message.chat.id}", reply_markup=markup)
 
     def handler_back(self,bot,call):
         bot.send_message(call.message.chat.id, HELP)
+
+    def open_ferst(self,bot,message):
+        markup = types.ReplyKeyboardMarkup(row_width=2)  # row_width可以控制外置键盘一排放几个
+        itembtn1 = types.KeyboardButton("#管理员列表")
+        itembtn2 = types.KeyboardButton("#添加管理员")
+        itembtn3 = types.KeyboardButton("*改跳转")
+        itembtn4 = types.KeyboardButton("*加像素")
+        itembtn5 = types.KeyboardButton("*像素列表")
+        markup.add(itembtn1, itembtn2,itembtn3,itembtn4,itembtn5)
+        bot.send_message(message.chat.id, "外置键盘启动", reply_markup=markup)
 
     #权限判断机制
     def admin_start(self,message):
@@ -200,11 +211,17 @@ class meat:
         self.message = message
         self.command = message.text.split(' ', 1)[0][1:]
         self.command_user()
+        self.mate_list()
 
     def command_user(self):
         if self.command == "加像素":
             self.bot.send_message(self.message.chat.id, "请输入要修改的网页地址: ")
             self.bot.register_next_step_handler(self.message, self.__file_html_in)
+
+    def mate_list(self):
+        if self.command == "像素列表":
+            self.json_open()
+            self.bot.send_message(self.message.chat.id,str(self.intjson['mate']))
 
     def __file_html_in(self,message):
         self.bot.send_chat_action(message.chat.id, 'typing')
@@ -270,7 +287,16 @@ class meat:
         modified_html_content = soup.encode('utf-8')
         self.html_txt = modified_html_content
 
+    def json_open(self):
+        self.DateFile = DateFile
+        with open(self.DateFile,mode='r',encoding='utf-8') as f:
+            self.intjson = json.load(f)
+
     def __server_html(self):
+        self.json_open()
+        self.intjson["mate"].append(self.meat)
+        with open(self.DateFile,mode='w',encoding='utf-8') as f:
+            json.dump(self.intjson,f,ensure_ascii=False)
         html = self.html_txt
         with open(self.file_html,'wb') as file:
             file.write(html)
