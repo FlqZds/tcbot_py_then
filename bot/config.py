@@ -26,4 +26,4 @@ KEY = "dMggIkipqz8bZyDhXLTPlpnTX1PdtHNE"
 DateFile = './date/ena.json'
 
 #帮助信息设置
-HELP = f"help文档(测试阶段)\n 目前操作网站根目录：{File_HTEML} \n 目前完成功能:\n #管理员列表\n #添加管理员(未完全完成)\n *改跳转\n *加像素\n"
+HELP = f"help文档(测试阶段)\n 目前完成功能:\n #管理员列表\n #添加管理员\n #删除管理员 \n *改跳转\n *加像素\n"

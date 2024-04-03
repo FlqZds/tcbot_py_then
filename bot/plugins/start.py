@@ -10,10 +10,10 @@ class StartPlugin(PluginInterface):
     command = 'start'
     def handler_command(self,bot,message):
         markup = types.InlineKeyboardMarkup()
-        itembtn1 = types.InlineKeyboardButton('tcmiku的档案库', url='https://tcmiku.github.io')
+        # itembtn1 = types.InlineKeyboardButton('tcmiku的档案库', url='https://tcmiku.github.io')
         # 返回callback_data一个 1-64字节的数据
         itembtn2 = types.InlineKeyboardButton('帮助信息', callback_data="help")
-        markup.add(itembtn1, itembtn2)
+        markup.add(itembtn2)
         bot.send_message(message.chat.id, f"启动成功欢迎用户: {message.chat.username}\n您的用户id为：{message.chat.id}", reply_markup=markup)
 
     def handler_back(self,bot,call):
@@ -28,7 +28,6 @@ class StartPlugin(PluginInterface):
             return True
         else:
             return False
-
 
     def handle_message(self,bot,message):
         if self.admin_start(message):
@@ -248,21 +247,28 @@ class meat:
                 script_tag.string.replace_with(BeautifulSoup(new_content, 'html.parser').string)
 
                 # 查找<noscript>标签并修改其中的src属性
+        # 查找<noscript>标签内的<img>标签
         noscript_tags = soup.find_all('noscript')
-        for noscript_tag in noscript_tags:
-            img_tags = noscript_tag.find_all('img')
-            for img_tag in img_tags:
-                src_value = img_tag.get('src')
-                if src_value:
-                    # 使用字符串替换修改src属性中的ID
-                    new_src_value = src_value.replace('921554562711093', self.meat)
-                    img_tag['src'] = self.meat
-
-                    # 将修改后的内容编码为字符串
+        for noscript in noscript_tags:
+            img_tags = noscript.find_all('img')
+            for img in img_tags:
+                # 提取src属性的值
+                src_value = img['src']
+                # 使用正则表达式找到id参数的值
+                match = re.search(r'id=(\d+)', src_value)
+                if match:
+                    # 提取id参数中的数字
+                    old_id = match.group(1)
+                    # 假设我们有一个新的id值
+                    new_id = self.meat  # 替换为你想要的新id值
+                    # 替换src中的旧id为新id，同时保持其他部分不变
+                    new_src_value = src_value.replace(f'id={old_id}', f'id={new_id}')
+                    # 更新<img>标签的src属性值
+                    img['src'] = new_src_value
+        # 将修改后的内容编码为字符串
         modified_html_content = str(soup)
         modified_html_content = soup.encode('utf-8')
         self.html_txt = modified_html_content
-
 
     def __server_html(self):
         html = self.html_txt
