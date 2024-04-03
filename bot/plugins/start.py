@@ -24,10 +24,11 @@ class StartPlugin(PluginInterface):
         markup = types.ReplyKeyboardMarkup(row_width=2)  # row_width可以控制外置键盘一排放几个
         itembtn1 = types.KeyboardButton("#管理员列表")
         itembtn2 = types.KeyboardButton("#添加管理员")
-        itembtn3 = types.KeyboardButton("*改跳转")
-        itembtn4 = types.KeyboardButton("*加像素")
-        itembtn5 = types.KeyboardButton("*像素列表")
-        markup.add(itembtn1, itembtn2,itembtn3,itembtn4,itembtn5)
+        itembtn3 = types.KeyboardButton("#删除管理员")
+        itembtn4 = types.KeyboardButton("*改跳转")
+        itembtn5 = types.KeyboardButton("*加像素")
+        itembtn6 = types.KeyboardButton("*像素列表")
+        markup.add(itembtn1, itembtn2,itembtn3,itembtn4,itembtn5,itembtn6)
         bot.send_message(message.chat.id, "外置键盘启动", reply_markup=markup)
 
     #权限判断机制
@@ -81,7 +82,7 @@ class authorityManagement:
 
     def __admin_del_nextstep(self,message):
        self.bot.send_chat_action(message.chat.id, 'typing')
-       if message.text.isdigit():
+       if message.text.isdigit() and int(message.text) in self.admin_date['Admin']:
            self.admin_date['Admin'].remove(int(message.text))
            self.__server_date()
            self.bot.send_message(message.chat.id, "删除成功")
