@@ -164,10 +164,15 @@ class rehtml():
             self.bot.register_next_step_handler(self.message,self.__file_html_in)
 
     def __file_html_in(self,message):
+        file = file_html()
+        lists = file.splicing()
         self.bot.send_chat_action(message.chat.id, 'typing')
         self.url_in = message.text
-        self.bot.send_message(message.chat.id, "请输入要跳转的网页: ")
-        self.bot.register_next_step_handler(message,self.__url_html_in)
+        if self.url_in in lists:
+            self.bot.send_message(message.chat.id, "请输入要跳转的网页: ")
+            self.bot.register_next_step_handler(message, self.__url_html_in)
+        else:
+            self.bot.send_message(message.chat.id, "没有该网页路径")
 
     def __url_html_in(self,message):
         self.bot.send_chat_action(message.chat.id, 'typing')
@@ -239,10 +244,15 @@ class meat:
             self.bot.send_message(self.message.chat.id,date)
 
     def __file_html_in(self,message):
+        file = file_html()
+        lists = file.splicing()
         self.bot.send_chat_action(message.chat.id, 'typing')
         self.url_in = message.text
-        self.bot.send_message(message.chat.id, "请输入要添加的像素id: ")
-        self.bot.register_next_step_handler(message,self.__url_html_in)
+        if self.url_in in lists:
+            self.bot.send_message(message.chat.id, "请输入要添加的像素id: ")
+            self.bot.register_next_step_handler(message,self.__url_html_in)
+        else:
+            self.bot.send_message(message.chat.id, "没有该网页路径")
 
     def __url_html_in(self,message):
         self.bot.send_chat_action(message.chat.id, 'typing')
@@ -261,46 +271,67 @@ class meat:
             self.html_content = f.read()
 
     def bs4(self):
-        # 使用BeautifulSoup解析HTML内容
+        # # 使用BeautifulSoup解析HTML内容
+        # soup = BeautifulSoup(self.html_content, 'html.parser')
+        #
+        # # 查找所有的<script>标签
+        # script_tags = soup.find_all('script')
+        #
+        # # 遍历每个<script>标签并修改fbq('init', '原像素ID')
+        # for script_tag in script_tags:
+        #     # 获取<script>标签的文本内容
+        #     script_content = script_tag.string
+        #     if script_content:
+        #         # 使用正则表达式替换fbq('init', '原像素ID')中的ID
+        #         pattern = r"fbq\('init', '\d+'\);"
+        #         new_content = re.sub(pattern, f"fbq('init', '{self.meat}');", script_content)
+        #         # 将修改后的内容设置回<script>标签
+        #         script_tag.string.replace_with(BeautifulSoup(new_content, 'html.parser').string)
+        #
+        #         # 查找<noscript>标签并修改其中的src属性
+        # # 查找<noscript>标签内的<img>标签
+        # noscript_tags = soup.find_all('noscript')
+        # for noscript in noscript_tags:
+        #     img_tags = noscript.find_all('img')
+        #     for img in img_tags:
+        #         # 提取src属性的值
+        #         src_value = img['src']
+        #         # 使用正则表达式找到id参数的值
+        #         match = re.search(r'id=(\d+)', src_value)
+        #         if match:
+        #             # 提取id参数中的数字
+        #             old_id = match.group(1)
+        #             # 假设我们有一个新的id值
+        #             new_id = self.meat  # 替换为你想要的新id值
+        #             # 替换src中的旧id为新id，同时保持其他部分不变
+        #             new_src_value = src_value.replace(f'id={old_id}', f'id={new_id}')
+        #             # 更新<img>标签的src属性值
+        #             img['src'] = new_src_value
+        # # 将修改后的内容编码为字符串
+
+        # 使用BeautifulSoup解析HTML
         soup = BeautifulSoup(self.html_content, 'html.parser')
+        # 创建一个新的script标签并设置内容
+        script_tag = soup.new_tag('script')
+        script_tag.string = f'fbq(\'init\', \'{self.meat}\');'
+        # 创建<noscript>标签
+        noscript_tag = soup.new_tag('noscript')
+        # 创建<img>标签并设置属性和src
+        img_tag = soup.new_tag('img', height="1", width="1", style="display:none",
+                               src=f"https://www.facebook.com/tr?id={self.meat}&ev=PageView&noscript=1")
+        # 将<img>标签添加到<noscript>标签中
+        noscript_tag.append(img_tag)
+        # 在<head>标签中添加<script>和<noscript>标签
+        head = soup.find('head')
+        if head:
+            head.append(script_tag)
+            head.append(noscript_tag)
 
-        # 查找所有的<script>标签
-        script_tags = soup.find_all('script')
-
-        # 遍历每个<script>标签并修改fbq('init', '原像素ID')
-        for script_tag in script_tags:
-            # 获取<script>标签的文本内容
-            script_content = script_tag.string
-            if script_content:
-                # 使用正则表达式替换fbq('init', '原像素ID')中的ID
-                pattern = r"fbq\('init', '\d+'\);"
-                new_content = re.sub(pattern, f"fbq('init', '{self.meat}');", script_content)
-                # 将修改后的内容设置回<script>标签
-                script_tag.string.replace_with(BeautifulSoup(new_content, 'html.parser').string)
-
-                # 查找<noscript>标签并修改其中的src属性
-        # 查找<noscript>标签内的<img>标签
-        noscript_tags = soup.find_all('noscript')
-        for noscript in noscript_tags:
-            img_tags = noscript.find_all('img')
-            for img in img_tags:
-                # 提取src属性的值
-                src_value = img['src']
-                # 使用正则表达式找到id参数的值
-                match = re.search(r'id=(\d+)', src_value)
-                if match:
-                    # 提取id参数中的数字
-                    old_id = match.group(1)
-                    # 假设我们有一个新的id值
-                    new_id = self.meat  # 替换为你想要的新id值
-                    # 替换src中的旧id为新id，同时保持其他部分不变
-                    new_src_value = src_value.replace(f'id={old_id}', f'id={new_id}')
-                    # 更新<img>标签的src属性值
-                    img['src'] = new_src_value
-        # 将修改后的内容编码为字符串
+        # 将修改后的HTML转换回字符串
         modified_html_content = str(soup)
         modified_html_content = soup.encode('utf-8')
         self.html_txt = modified_html_content
+
 
     def json_open(self):
         self.DateFile = DateFile
