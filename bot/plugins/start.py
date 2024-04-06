@@ -1,4 +1,5 @@
 from telebot import types
+import os
 from bot.handler_type import PluginInterface
 from pybt.system import System
 from pybt.sites import Sites
@@ -25,10 +26,11 @@ class StartPlugin(PluginInterface):
         itembtn1 = types.KeyboardButton("#管理员列表")
         itembtn2 = types.KeyboardButton("#添加管理员")
         itembtn3 = types.KeyboardButton("#删除管理员")
-        itembtn4 = types.KeyboardButton("*改跳转")
-        itembtn5 = types.KeyboardButton("*加像素")
-        itembtn6 = types.KeyboardButton("*像素列表")
-        markup.add(itembtn1, itembtn2,itembtn3,itembtn4,itembtn5,itembtn6)
+        itembtn4 = types.KeyboardButton("#查看网页路径")
+        itembtn5 = types.KeyboardButton("*改跳转")
+        itembtn6 = types.KeyboardButton("*加像素")
+        itembtn7 = types.KeyboardButton("*像素列表")
+        markup.add(itembtn1, itembtn2,itembtn3,itembtn4,itembtn5,itembtn6,itembtn7)
         bot.send_message(message.chat.id, "外置键盘启动", reply_markup=markup)
 
     #权限判断机制
@@ -65,6 +67,14 @@ class authorityManagement:
         self.__admin_del()
         self.__admin_show()
         self.__admin_add()
+        self.__file_html()
+    def __file_html(self):
+        if self.command == '查看网页路径':
+            file = file_html()
+            lists = file.splicing()
+            lists = str(lists)
+            cleaned_string = lists.strip("[]").replace(",", "\n")
+            self.bot.send_message(self.message.chat.id,f"现有网页路径:\n{cleaned_string}")
 
     def __read_admin(self):
         with open(file=self.DateFile,mode='r',encoding='utf-8') as date:
@@ -73,7 +83,9 @@ class authorityManagement:
 
     def __admin_show(self):
         if self.command == '管理员列表':
-            self.bot.send_message(self.message.chat.id,str(self.admin_date['Admin']))
+            date  = str(self.admin_date['Admin'])
+            date = date.strip("[]").replace(",","\n")
+            self.bot.send_message(self.message.chat.id,f"现有管理员id:\n{date}")
 
     def __admin_del(self):
         if self.command == '删除管理员':
@@ -222,7 +234,9 @@ class meat:
     def mate_list(self):
         if self.command == "像素列表":
             self.json_open()
-            self.bot.send_message(self.message.chat.id,str(self.intjson['mate']))
+            date = str(self.intjson['mate'])
+            date = date.replace(",","\n")
+            self.bot.send_message(self.message.chat.id,date)
 
     def __file_html_in(self,message):
         self.bot.send_chat_action(message.chat.id, 'typing')
@@ -302,5 +316,44 @@ class meat:
         with open(self.file_html,'wb') as file:
             file.write(html)
 
+class file_html:
+    # path：文件路径   path = "D:\projects\TcBot-master\html";
+    # all_files 所有文件  dic_name = {}
+    # 查找文件的定义
+    def __init__(self):
+        self.path = File_HTEML
+        self.list_immediate_subdirectories()
+        self.file_splicing()
+    def list_immediate_subdirectories(sefl):
+        immediate_subdirectories = []
+        entries = os.listdir(sefl.path)
+        for entry in entries:
+            path = os.path.join(sefl.path, entry)
+            if os.path.isdir(path):
+                immediate_subdirectories.append(entry)
+        sefl.file_lists = immediate_subdirectories
+
+    def file_splicing(self):
+        html_files = []
+        for file_list in self.file_lists:
+            file = f"{self.path}/{file_list}"
+            entries = os.listdir(file)
+            for entry in entries:
+                full_path = os.path.join(file, entry)
+                # 检查这个路径是否是一个文件
+                if os.path.isfile(full_path) and full_path.endswith('.html'):
+                    html_files.append(full_path)
+        self.html_file_names = [os.path.basename(path) for path in html_files]
+
+    def splicing(self):
+        i = 0
+        file_list = []
+        for list in self.file_lists:
+            html_name = str(self.html_file_names[i])[:-5]
+            file_list.append(f"{list}/{html_name}")
+            i+=1
+        return file_list
+
 if __name__ == '__main__':
-    pass
+    dome = file_html()
+    print(dome.splicing())
