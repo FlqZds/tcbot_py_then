@@ -11,7 +11,7 @@ Banner = """\033[0;34m
                             佛祖保佑       永不宕机     永无BUG   \033[0m                                                     
         """
 #电报机器人配置
-TOKEN = "7002508823:AAFPmQgEr2P5PoAoEbnaYxhq0734eHH02RI"
+TOKEN = "6778979605:AAEeTqyKb673S6vXKz0z8fqxtUC6Xlr3gk0"
 MYSQL = ""
 
 #网页地址配置

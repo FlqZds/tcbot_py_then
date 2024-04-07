@@ -348,9 +348,6 @@ class meat:
             file.write(html)
 
 class file_html:
-    # path：文件路径   path = "D:\projects\TcBot-master\html";
-    # all_files 所有文件  dic_name = {}
-    # 查找文件的定义
     def __init__(self):
         self.path = File_HTEML
         self.list_immediate_subdirectories()

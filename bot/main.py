@@ -6,6 +6,15 @@ from config import TOKEN,Banner
 from telebot import types
 import time
 import logging
+import sys
+import platform
+# 获取操作系统名称
+os_name = platform.system()
+if platform.system() == "Windows":
+    print("Windows系统启动")
+elif platform.system() == 'Linux':
+    print("linux系统启动")
+    sys.path.append('/www/wwwroot/TcBot')  #linux加载软件包的路径
 
 #玄学加载
 print(Banner)
