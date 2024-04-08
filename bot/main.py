@@ -77,4 +77,3 @@ try:
     bot.polling()
 except Exception as e:
     print(f"\033[31m出现错误 {e} \033[m")
-    bot.polling()
