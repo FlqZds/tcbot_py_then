@@ -79,10 +79,10 @@ class button:
         itembtn9 = types.KeyboardButton("*加像素")
         itembtn10 = types.KeyboardButton("*像素列表")
         if message.chat.id in self.admin_date["Admin"]:
-            print(f"管理员{message.chat.username}启动外置键盘")
+            print(f"管理员{message.chat.username}启动外置键盘     {time.ctime()}")
             markup.add(itembtn1, itembtn2,itembtn3,itembtn4,itembtn5,itembtn6,itembtn7,itembtn8,itembtn9,itembtn10)
         elif message.chat.id in self.admin_date["user"]:
-            print(f"用户{message.chat.username}启动外置键盘")
+            print(f"用户{message.chat.username}启动外置键盘     {time.ctime()}")
             markup.add(itembtn7,itembtn8,itembtn9,itembtn10)
         bot.send_message(message.chat.id, "外置键盘启动", reply_markup=markup)
 
@@ -129,10 +129,10 @@ class authorityManagement:
             self.admin_date['user'].remove(int(message.text))
             self.__server_date()
             self.bot.send_message(message.chat.id, "删除成功")
-            print(f"删除{message.text}成功")
+            print(f"删除用户{message.text}成功      {time.ctime()}")
         else:
             self.bot.send_message(message.chat.id, "删除失败")
-            print(f"删除{message.text}失败")
+            print(f"删除用户{message.text}失败     {time.ctime()}")
 
     def __admin_del(self):
         if self.command == '删除管理员':
@@ -145,8 +145,10 @@ class authorityManagement:
            self.admin_date['Admin'].remove(int(message.text))
            self.__server_date()
            self.bot.send_message(message.chat.id, "删除成功")
+           print(f"删除管理员{message.text}成功     {time.ctime()}")
        else:
            self.bot.send_message(message.chat.id,"删除失败")
+           print(f"删除管理员{message.text}失败     {time.ctime()}")
 
     def __admin_add(self):
         if self.command == '添加管理员':
@@ -164,10 +166,10 @@ class authorityManagement:
             self.admin_date['user'].append(int(message.text))
             self.__server_date()
             self.bot.send_message(message.chat.id,"添加成功")
-            print(f'添加用户{message.text}')
+            print(f'添加用户{message.text}      {time.ctime()}')
         else:
             self.bot.send_message(message.chat.id,"添加失败,您输入的id不是纯数字")
-            print(f'用户{message.text}添加失败')
+            print(f'用户{message.text}添加失败      {time.ctime()}')
 
     def __admin_add_nextstep(self,message):
        self.bot.send_chat_action(message.chat.id, 'typing')
@@ -175,10 +177,10 @@ class authorityManagement:
            self.admin_date['Admin'].append(int(message.text))
            self.__server_date()
            self.bot.send_message(message.chat.id, "添加成功")
-           print(f'添加管理员{message.text}')
+           print(f'添加管理员{message.text}     {time.ctime()}')
        else:
            self.bot.send_message(message.chat.id,"添加失败,您输入的id不是纯数字")
-           print(f'管理员{message.text}添加失败')
+           print(f'管理员{message.text}添加失败     {time.ctime()}')
 
     def __server_date(self):
         with open(self.DateFile,mode='w',encoding='utf-8') as f:

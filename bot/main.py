@@ -8,16 +8,15 @@ import time
 import logging
 import sys
 import platform
+#玄学加载
+print(Banner)
 # 获取操作系统名称
 os_name = platform.system()
 if platform.system() == "Windows":
-    print("Windows系统启动")
+    print(f"\033[32mWindows系统启动     {time.ctime()}\033[m")
 elif platform.system() == 'Linux':
-    print("linux系统启动")
+    print(f"\033[32mlinux系统启动       {time.ctime()}\33[m")
     sys.path.append('/www/wwwroot/TcBot')  #linux加载软件包的路径
-
-#玄学加载
-print(Banner)
 
 #插件目录
 PLUGIN_DIR = 'plugins'
@@ -26,7 +25,6 @@ if config.TOKEN != "":
     bot = telebot.TeleBot(TOKEN)
 else:
     print("错误!!")
-
 plugins = []
 # 加载插件目录
 for filename in os.listdir(os.path.join(os.path.dirname(__file__), PLUGIN_DIR)):
@@ -40,11 +38,11 @@ for filename in os.listdir(os.path.join(os.path.dirname(__file__), PLUGIN_DIR)):
             plugin_class = getattr(module, f'{module_name.capitalize()}Plugin')
             #将获取到的类放到插件列表里
             plugins.append(plugin_class())
-            print(f'\033[32m加载 plugin: {module_name} 成功\033[m')
+            print(f'\033[32m加载 plugin: {module_name} 成功  {time.ctime()} \033[m')
         except Exception as e:
-            print(f'\033[31m加载 plugin: {module_name} 失败\033[m')
+            print(f'\033[31m加载 plugin: {module_name} 失败  {time.ctime()}\033[m')
 
-print("\033[32m模块加载完成\033[m")
+print(f"\033[32m模块加载完成   {time.ctime()}\033[m")
 
 #获取机器人所有可执行的命令
 commands = []
@@ -74,7 +72,7 @@ def callback_handler(call):
 
 
 try:
-    print("\033[34m机器人运行成功\033[m")
+    print(f"\033[34m机器人运行成功  {time.ctime()} \033[m")
     print(f"目前可使用命令{commands}")
     bot.polling()
 except Exception as e:
