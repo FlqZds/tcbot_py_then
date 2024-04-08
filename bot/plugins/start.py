@@ -7,6 +7,7 @@ from bot.config import URL,KEY,HELP,File_HTEML,DateFile
 from bs4 import BeautifulSoup
 import json
 import re
+import time
 class StartPlugin(PluginInterface):
     command = 'start'
     def handler_command(self,bot,message):
@@ -15,36 +16,32 @@ class StartPlugin(PluginInterface):
         # 返回callback_data一个 1-64字节的数据
         itembtn2 = types.InlineKeyboardButton('帮助信息', callback_data="help")
         markup.add(itembtn2)
-        self.open_ferst(bot,message)
+        #外置键盘设置
+        show_button = button()
+        show_button.open_admin(bot,message)
         bot.send_message(message.chat.id, f"启动成功欢迎用户: {message.chat.username}\n您的用户id为：{message.chat.id}", reply_markup=markup)
 
     def handler_back(self,bot,call):
         bot.send_message(call.message.chat.id, HELP)
 
-    def open_ferst(self,bot,message):
-        markup = types.ReplyKeyboardMarkup(row_width=2)  # row_width可以控制外置键盘一排放几个
-        itembtn1 = types.KeyboardButton("#管理员列表")
-        itembtn2 = types.KeyboardButton("#添加管理员")
-        itembtn3 = types.KeyboardButton("#删除管理员")
-        itembtn4 = types.KeyboardButton("#查看网页路径")
-        itembtn5 = types.KeyboardButton("*改跳转")
-        itembtn6 = types.KeyboardButton("*加像素")
-        itembtn7 = types.KeyboardButton("*像素列表")
-        markup.add(itembtn1, itembtn2,itembtn3,itembtn4,itembtn5,itembtn6,itembtn7)
-        bot.send_message(message.chat.id, "外置键盘启动", reply_markup=markup)
 
     #权限判断机制
-    def admin_start(self,message):
+    def admin_start(self,bot,message):
+
         with open(file=DateFile,mode='r',encoding='utf-8') as date:
             admin_date = json.load(date)
         admin_date
         if message.from_user.id in admin_date["Admin"]:
-            return True
+            return "admin"
+        elif message.from_user.id in admin_date['user']:
+            return "user"
         else:
-            return False
+            return None
 
     def handle_message(self,bot,message):
-        if self.admin_start(message):
+        date = self.admin_start(bot,message)
+        if date == 'admin':
+            #管理员可使用命令
             #系统有关命令
             if message.text.startswith('!'):
                 systeams = systeam(bot,message)
@@ -53,8 +50,41 @@ class StartPlugin(PluginInterface):
             elif message.text.startswith('*'):
                 jumpurl = rehtml(bot,message)
                 meatadd = meat(bot,message)
+        elif date == 'user':
+            #用户可使用命令
+            if message.text.startswith('*'):
+                jumpurl = rehtml(bot, message)
+                meatadd = meat(bot, message)
         else:
             bot.send_message(message.chat.id, "您没有该权限")
+
+#外置键盘控制
+class button:
+    def __read_date(self):
+        self.DateFile = DateFile
+        with open(file=self.DateFile,mode='r',encoding='utf-8') as date:
+            self.admin_date = json.load(date)
+        self.admin_date
+    def open_admin(self,bot,message):
+        self.__read_date()
+        markup = types.ReplyKeyboardMarkup(row_width=2)  # row_width可以控制外置键盘一排放几个
+        itembtn1 = types.KeyboardButton("#管理员列表")
+        itembtn2 = types.KeyboardButton("#用户列表")
+        itembtn3 = types.KeyboardButton("#添加管理员")
+        itembtn4 = types.KeyboardButton("#添加用户")
+        itembtn5 = types.KeyboardButton("#删除管理员")
+        itembtn6 = types.KeyboardButton("#删除用户")
+        itembtn7 = types.KeyboardButton("*查看网页路径")
+        itembtn8 = types.KeyboardButton("*改跳转")
+        itembtn9 = types.KeyboardButton("*加像素")
+        itembtn10 = types.KeyboardButton("*像素列表")
+        if message.chat.id in self.admin_date["Admin"]:
+            print(f"管理员{message.chat.username}启动外置键盘")
+            markup.add(itembtn1, itembtn2,itembtn3,itembtn4,itembtn5,itembtn6,itembtn7,itembtn8,itembtn9,itembtn10)
+        elif message.chat.id in self.admin_date["user"]:
+            print(f"用户{message.chat.username}启动外置键盘")
+            markup.add(itembtn7,itembtn8,itembtn9,itembtn10)
+        bot.send_message(message.chat.id, "外置键盘启动", reply_markup=markup)
 
 #权限管理机制
 class authorityManagement:
@@ -65,16 +95,11 @@ class authorityManagement:
         self.DateFile = DateFile
         self.__read_admin()
         self.__admin_del()
+        self.__user_del()
+        self.__user_show()
         self.__admin_show()
         self.__admin_add()
-        self.__file_html()
-    def __file_html(self):
-        if self.command == '查看网页路径':
-            file = file_html()
-            lists = file.splicing()
-            lists = str(lists)
-            cleaned_string = lists.strip("[]").replace(",", "\n")
-            self.bot.send_message(self.message.chat.id,f"现有网页路径:\n{cleaned_string}")
+        self.__user_add()
 
     def __read_admin(self):
         with open(file=self.DateFile,mode='r',encoding='utf-8') as date:
@@ -86,6 +111,28 @@ class authorityManagement:
             date  = str(self.admin_date['Admin'])
             date = date.strip("[]").replace(",","\n")
             self.bot.send_message(self.message.chat.id,f"现有管理员id:\n{date}")
+
+    def __user_show(self):
+        if self.command == '用户列表':
+            date  = str(self.admin_date['user'])
+            date = date.strip("[]").replace(",","\n")
+            self.bot.send_message(self.message.chat.id,f"现有用户id:\n{date}")
+
+    def __user_del(self):
+        if self.command == '删除用户':
+            self.bot.send_message(self.message.chat.id,"请输入要删除的用户id")
+            self.bot.register_next_step_handler(self.message,self.__user_del_nextstep)
+
+    def __user_del_nextstep(self,message):
+        self.bot.send_chat_action(message.chat.id, 'typing')
+        if message.text.isdigit() and int(message.text) in self.admin_date['user']:
+            self.admin_date['user'].remove(int(message.text))
+            self.__server_date()
+            self.bot.send_message(message.chat.id, "删除成功")
+            print(f"删除{message.text}成功")
+        else:
+            self.bot.send_message(message.chat.id, "删除失败")
+            print(f"删除{message.text}失败")
 
     def __admin_del(self):
         if self.command == '删除管理员':
@@ -106,14 +153,32 @@ class authorityManagement:
             self.bot.send_message(self.message.chat.id,"请输入要加入的管理员id")
             self.bot.register_next_step_handler(self.message,self.__admin_add_nextstep)
 
+    def __user_add(self):
+        if self.command == '添加用户':
+            self.bot.send_message(self.message.chat.id,"请输入要加入的用户id")
+            self.bot.register_next_step_handler(self.message,self.__user_add_nextstep)
+
+    def __user_add_nextstep(self,message):
+        self.bot.send_chat_action(message.chat.id,'typing')
+        if message.text.isdigit():
+            self.admin_date['user'].append(int(message.text))
+            self.__server_date()
+            self.bot.send_message(message.chat.id,"添加成功")
+            print(f'添加用户{message.text}')
+        else:
+            self.bot.send_message(message.chat.id,"添加失败,您输入的id不是纯数字")
+            print(f'用户{message.text}添加失败')
+
     def __admin_add_nextstep(self,message):
        self.bot.send_chat_action(message.chat.id, 'typing')
        if message.text.isdigit():
            self.admin_date['Admin'].append(int(message.text))
            self.__server_date()
            self.bot.send_message(message.chat.id, "添加成功")
+           print(f'添加管理员{message.text}')
        else:
-           self.bot.send_message(message.chat.id,"添加失败")
+           self.bot.send_message(message.chat.id,"添加失败,您输入的id不是纯数字")
+           print(f'管理员{message.text}添加失败')
 
     def __server_date(self):
         with open(self.DateFile,mode='w',encoding='utf-8') as f:
@@ -157,6 +222,15 @@ class rehtml():
         self.bot = bot
         self.command = message.text.split(' ', 1)[0][1:]
         self.command_user()
+        self.__file_html()
+
+    def __file_html(self):
+        if self.command == '查看网页路径':
+            file = file_html()
+            lists = file.splicing()
+            lists = str(lists)
+            cleaned_string = lists.strip("[]").replace(",", "\n")
+            self.bot.send_message(self.message.chat.id,f"现有网页路径:\n{cleaned_string}")
 
     def command_user(self):
         if self.command == "改跳转":
