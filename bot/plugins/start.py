@@ -29,6 +29,7 @@ class StartPlugin(PluginInterface):
         bot.send_message(call.message.chat.id, HELP)
 
 
+
     #权限判断机制
     def admin_start(self,bot,message):
 
