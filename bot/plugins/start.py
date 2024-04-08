@@ -1,9 +1,10 @@
 from telebot import types
 import os
+import shutil
 from bot.handler_type import PluginInterface
 from pybt.system import System
 from pybt.sites import Sites
-from bot.config import URL,KEY,HELP,File_HTEML,DateFile
+from bot.config import URL,KEY,HELP,File_HTEML,DateFile,Template_HTML
 from bs4 import BeautifulSoup
 import json
 import re
@@ -16,6 +17,9 @@ class StartPlugin(PluginInterface):
         # 返回callback_data一个 1-64字节的数据
         itembtn2 = types.InlineKeyboardButton('帮助信息', callback_data="help")
         markup.add(itembtn2)
+        #根据当前用户id创建家目录
+        page = userpage(bot,message)
+        page.create_dir()
         #外置键盘设置
         show_button = button()
         show_button.open_admin(bot,message)
@@ -50,11 +54,13 @@ class StartPlugin(PluginInterface):
             elif message.text.startswith('*'):
                 jumpurl = rehtml(bot,message)
                 meatadd = meat(bot,message)
+                copy_html = webModules(bot, message)
         elif date == 'user':
             #用户可使用命令
             if message.text.startswith('*'):
                 jumpurl = rehtml(bot, message)
                 meatadd = meat(bot, message)
+                copy_html = webModules(bot,message)
         else:
             bot.send_message(message.chat.id, "您没有该权限")
 
@@ -75,15 +81,16 @@ class button:
         itembtn5 = types.KeyboardButton("#删除管理员")
         itembtn6 = types.KeyboardButton("#删除用户")
         itembtn7 = types.KeyboardButton("*查看网页路径")
-        itembtn8 = types.KeyboardButton("*改跳转")
-        itembtn9 = types.KeyboardButton("*加像素")
-        itembtn10 = types.KeyboardButton("*像素列表")
+        itembtn8 = types.KeyboardButton("*复制网页模板")
+        itembtn9 = types.KeyboardButton("*改跳转")
+        itembtn10 = types.KeyboardButton("*加像素")
+        itembtn11 = types.KeyboardButton("*像素列表")
         if message.chat.id in self.admin_date["Admin"]:
             print(f"管理员{message.chat.username}启动外置键盘     {time.ctime()}")
-            markup.add(itembtn1, itembtn2,itembtn3,itembtn4,itembtn5,itembtn6,itembtn7,itembtn8,itembtn9,itembtn10)
+            markup.add(itembtn1, itembtn2,itembtn3,itembtn4,itembtn5,itembtn6,itembtn7,itembtn8,itembtn9,itembtn11)
         elif message.chat.id in self.admin_date["user"]:
             print(f"用户{message.chat.username}启动外置键盘     {time.ctime()}")
-            markup.add(itembtn7,itembtn8,itembtn9,itembtn10)
+            markup.add(itembtn7,itembtn8,itembtn9,itembtn10,itembtn11)
         bot.send_message(message.chat.id, "外置键盘启动", reply_markup=markup)
 
 #权限管理机制
@@ -414,11 +421,13 @@ class meat:
         with open(self.DateFile,mode='r',encoding='utf-8') as f:
             self.intjson = json.load(f)
 
-    def __server_html(self):
+    def json_save(self):
         self.json_open()
         self.intjson["mate"].append(self.meat)
         with open(self.DateFile,mode='w',encoding='utf-8') as f:
             json.dump(self.intjson,f,ensure_ascii=False)
+
+    def __server_html(self):
         html = self.html_txt
         with open(self.file_html,'wb') as file:
             file.write(html)
@@ -457,6 +466,90 @@ class file_html:
             file_list.append(f"{list}/{html_name}")
             i+=1
         return file_list
+
+class userpage:
+    """
+    作者:yyl
+    rq:2024.4.8
+    功能描述：生产对应的userid文件夹
+    """
+
+    def __init__(self, bot, message):
+        self.bot = bot
+        self.message = message
+        self.file_list = File_HTEML
+        self.DateFile = DateFile
+        self.__read_admin()
+
+    def __read_admin(self):
+        with open(file=self.DateFile, mode='r', encoding='utf-8') as date:
+            self.admin_date = json.load(date)
+        self.admin_date
+
+    # 生成以用户id命名的文件夹
+    def create_dir(self):
+        userid = str(self.message.chat.id)
+        # 指定生成文件夹路径
+        userdir = os.path.join(self.file_list, userid)
+        # 获取当前用户id并转为int
+        id = int(userid)
+        # 判断该id是否在user列表里
+        if id in self.admin_date['user']:
+            # 判断该文件夹是否存在
+            if os.path.isdir(userdir):
+                print(f'该目录已存在      {time.ctime()}')
+            else:
+                os.makedirs(userdir)
+                print(f'已创建用户文件夹      {time.ctime()}')
+        elif id in self.admin_date['Admin']:
+            if os.path.isdir(userdir):
+                print(f'该目录已存在      {time.ctime()}')
+            else:
+                os.makedirs(userdir)
+                print(f"已创建管理员文件夹      {time.ctime()}")
+
+class webModules:
+    '''
+    zds
+    2024/4/8
+    fun：
+    # 网页模板：
+    # 每一个普通用户都可以复制一个落地页模板到自己的路径下进行操作（用于保证落地页内容相同但其中的跳转和像素不同）
+    '''
+    def __init__(self,bot,message):
+        self.bot = bot
+        self.id = message.chat.id
+        self.message = message
+        self.command = message.text.split(' ', 1)[0][1:]
+        self.path = Template_HTML
+        self.File_HTEML = File_HTEML
+        self.command_user()
+
+    def command_user(self):
+        if self.command == '复制网页模板':
+            self.bot.send_message(self.message.chat.id, "请输入要复制的模板名称: ")
+            self.bot.register_next_step_handler(self.message,self.copy_template)
+
+    def copy_template(self,message):
+        self.bot.send_chat_action(message.chat.id, 'typing')
+        self.cmd = message.text
+        self.copyFiles()
+    def copyFiles(self):
+        try:
+            destPath = self.File_HTEML
+            destDirList = os.listdir(self.path)  # 要复制路径的 文件夹·文件
+            if self.cmd in destDirList:
+                copyResult = shutil.copytree(self.path, f"{destPath}/{self.id}/{self.cmd}")
+                print(f'{copyResult}，文件已成功创建    {time.ctime()}')
+                shutil.move(f"{destPath}/{self.id}/{self.cmd}/{self.cmd}",f"{destPath}/")
+                shutil.rmtree(f"{destPath}/{self.id}/{self.cmd}")
+                shutil.move(f"{destPath}/{self.cmd}", f"{destPath}/{self.id}")
+            else:
+                self.bot.send_message(self.message.chat.id, "没有该模板文件")
+                print(f'没有该模板文件    {time.ctime()}')
+        except Exception as e:
+            print(f'创建文件夹 失败 ，{e} {time.ctime()}')
+
 
 if __name__ == '__main__':
     dome = file_html()

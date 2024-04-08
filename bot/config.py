@@ -14,16 +14,19 @@ Banner = """\033[0;34m
 TOKEN = "6778979605:AAEeTqyKb673S6vXKz0z8fqxtUC6Xlr3gk0"
 MYSQL = ""
 
+#网站模板路径
+Template_HTML = '../html'
+
 #网页地址配置
-File_HTEML = '../html'
+File_HTEML = '../user'
 
 
 #宝塔api配置
 URL = "http://47.94.149.204:35560/"
 KEY = "dMggIkipqz8bZyDhXLTPlpnTX1PdtHNE"
 
-#权限管理机制
+#权限管理机制与储存
 DateFile = './date/ena.json'
 
 #帮助信息设置
-HELP = f"help文档(测试阶段)\n 目前完成功能:\n #管理员列表\n #添加管理员\n #删除管理员 \n *改跳转\n *加像素\n"
+HELP = f"help文档(测试阶段)\n 新用户使用时请先输入/start获取id，联系管理员添加id后即可正常使用"

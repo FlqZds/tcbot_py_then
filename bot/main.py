@@ -13,9 +13,9 @@ print(Banner)
 # 获取操作系统名称
 os_name = platform.system()
 if platform.system() == "Windows":
-    print(f"\033[32mWindows系统启动     {time.ctime()}\033[m")
+    print(f"\033[34mWindows系统启动     {time.ctime()}\033[m")
 elif platform.system() == 'Linux':
-    print(f"\033[32mlinux系统启动       {time.ctime()}\33[m")
+    print(f"\033[34mlinux系统启动       {time.ctime()}\33[m")
     sys.path.append('/www/wwwroot/TcBot')  #linux加载软件包的路径
 
 #插件目录
