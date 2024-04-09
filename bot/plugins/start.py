@@ -89,16 +89,17 @@ class button:
         itembtn6 = types.KeyboardButton("#删除用户")
         itembtn7 = types.KeyboardButton("*查看模板路径")
         itembtn8 = types.KeyboardButton("*复制网页模板")
-        itembtn9 = types.KeyboardButton("*查看落地页网址")
-        itembtn10 = types.KeyboardButton("*改跳转")
-        itembtn11 = types.KeyboardButton("*加像素")
-        itembtn12 = types.KeyboardButton("*像素列表")
+        itembtn9 = types.KeyboardButton("*删除网页")
+        itembtn10 = types.KeyboardButton("*查看落地页网址")
+        itembtn11 = types.KeyboardButton("*改跳转")
+        itembtn12 = types.KeyboardButton("*加像素")
+        itembtn13 = types.KeyboardButton("*像素列表")
         if message.chat.id in self.admin_date["Admin"]:
             print(f"管理员{message.chat.username}启动外置键盘     {time.ctime()}")
-            markup.add(itembtn1, itembtn2,itembtn3,itembtn4,itembtn5,itembtn6,itembtn7,itembtn8,itembtn9,itembtn10,itembtn11,itembtn12)
+            markup.add(itembtn1, itembtn2,itembtn3,itembtn4,itembtn5,itembtn6,itembtn7,itembtn8,itembtn9,itembtn10,itembtn11,itembtn12,itembtn13)
         elif message.chat.id in self.admin_date["user"]:
             print(f"用户{message.chat.username}启动外置键盘     {time.ctime()}")
-            markup.add(itembtn7,itembtn8,itembtn9,itembtn10,itembtn11,itembtn12)
+            markup.add(itembtn7,itembtn8,itembtn9,itembtn10,itembtn11,itembtn12,itembtn13)
         bot.send_message(message.chat.id, "外置键盘启动", reply_markup=markup)
 
 #权限管理机制
@@ -612,11 +613,25 @@ class webModules:
         self.path = Template_HTML
         self.File_HTEML = File_HTEML
         self.command_user()
+        self.command_del()
+    def command_del(self):
+        if self.command == '删除网页':
+            destPath = self.File_HTEML
+            destDirList = os.listdir(self.path)  # 要复制路径的 文件夹·文件
+            list = str(destDirList).strip('[]').replace("'", "").replace(",", "\n")
+            self.bot.send_message(self.message.chat.id, f"已有模板名称:\n {list}")
+            self.bot.send_message(self.message.chat.id, "请输入要删除的模板名称: ")
+            self.bot.register_next_step_handler(self.message,self.del_template)
 
     def command_user(self):
         if self.command == '复制网页模板':
             self.bot.send_message(self.message.chat.id, "请输入要复制的模板名称: ")
             self.bot.register_next_step_handler(self.message,self.copy_template)
+
+    def del_template(self, message):
+        self.bot.send_chat_action(message.chat.id, 'typing')
+        self.cmd = message.text
+        self.deleteWebTemplate()
 
     def copy_template(self,message):
         self.bot.send_chat_action(message.chat.id, 'typing')
@@ -639,6 +654,20 @@ class webModules:
         except Exception as e:
             print(f'创建文件夹 失败 ，{e} {time.ctime()}')
             self.bot.send_message(self.message.chat.id, "模板创建失败，请检查路径是否正确(当前版本下：若网页路径已存在，也会创建失败可以使用“*查看网页路径”查看)")
+    def deleteWebTemplate(self):  # 删除网页模板
+        try:
+            destPath = f'{self.File_HTEML}/{self.id}'  #工作目录
+            webTamplate_list = os.listdir(f'{destPath}')  # 找到用户所有的模板 导出为列表
+            if f'{self.cmd}' in webTamplate_list:    #判断删除的目标是否在工作列表中
+                shutil.rmtree(f'{destPath}/{self.cmd}')
+                self.bot.send_message(self.message.chat.id, "模板删除成功")
+                print(f'删除网页成功   {time.ctime()}')
+            else:
+                print(f'未找到相关模板目录，请确认删除command指令')
+        except Exception as e:
+            print(f'模板文件夹删除失败 ，{e} {time.ctime()}')
+
+
 
 
 if __name__ == '__main__':
