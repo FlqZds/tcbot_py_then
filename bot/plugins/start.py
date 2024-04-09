@@ -266,10 +266,14 @@ class rehtml():
 
     def server_web_html_command(self):
         if self.command == "查看落地页网址":
-            self.server_web_html()
-            str_html = str(self.server_web)
-            str_html = str_html.strip("[]").replace(",", "\n")
-            self.bot.send_message(self.message.chat.id, f"落地页网址:\n{str_html}")
+            try:
+                self.server_web_html()
+                str_html = str(self.server_web)
+                str_html = str_html.strip("[]").replace(",", "\n")
+                self.bot.send_message(self.message.chat.id, f"落地页网址:\n{str_html}")
+            except:
+                print(f"用户未初始化      {time.ctime()}")
+                self.bot.send_message(self.message.chat.id, "请输入/start创建路径")
 
     def server_web_html(self):
         file = file_html(self.message)
