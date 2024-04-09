@@ -11,7 +11,7 @@ import re
 import time
 class StartPlugin(PluginInterface):
     """
-    机器人命令入口
+        机器人命令入口
     """
     command = 'start'
     def handler_command(self,bot,message):
