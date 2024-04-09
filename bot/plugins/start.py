@@ -88,7 +88,7 @@ class button:
         itembtn11 = types.KeyboardButton("*像素列表")
         if message.chat.id in self.admin_date["Admin"]:
             print(f"管理员{message.chat.username}启动外置键盘     {time.ctime()}")
-            markup.add(itembtn1, itembtn2,itembtn3,itembtn4,itembtn5,itembtn6,itembtn7,itembtn8,itembtn9,itembtn11)
+            markup.add(itembtn1, itembtn2,itembtn3,itembtn4,itembtn5,itembtn6,itembtn7,itembtn8,itembtn9,itembtn10,itembtn11)
         elif message.chat.id in self.admin_date["user"]:
             print(f"用户{message.chat.username}启动外置键盘     {time.ctime()}")
             markup.add(itembtn7,itembtn8,itembtn9,itembtn10,itembtn11)
@@ -230,13 +230,14 @@ class rehtml():
     def __init__(self,bot,message):
         self.message = message
         self.bot = bot
+        self.id = message.chat.id
         self.command = message.text.split(' ', 1)[0][1:]
         self.command_user()
         self.__file_html()
 
     def __file_html(self):
         if self.command == '查看网页路径':
-            file = file_html()
+            file = file_html(self.message)
             lists = file.splicing()
             lists = str(lists)
             cleaned_string = lists.strip("[]").replace(",", "\n")
@@ -248,7 +249,7 @@ class rehtml():
             self.bot.register_next_step_handler(self.message,self.__file_html_in)
 
     def __file_html_in(self,message):
-        file = file_html()
+        file = file_html(message)
         lists = file.splicing()
         self.bot.send_chat_action(message.chat.id, 'typing')
         self.url_in = message.text
@@ -265,7 +266,7 @@ class rehtml():
         self.bot.send_message(message.chat.id,"修改成功")
 
     def urladd(self):
-        self.file_html = f'{File_HTEML}/{self.url_in}.html'
+        self.file_html = f'{File_HTEML}/{self.id}/{self.url_in}.html'
         self.openhtml()
         self.db4()
         self.__server_html()
@@ -310,6 +311,7 @@ class rehtml():
 class meat:
     def __init__(self,bot,message):
         self.bot = bot
+        self.id = message.chat.id
         self.message = message
         self.command = message.text.split(' ', 1)[0][1:]
         self.command_user()
@@ -328,7 +330,7 @@ class meat:
             self.bot.send_message(self.message.chat.id,date)
 
     def __file_html_in(self,message):
-        file = file_html()
+        file = file_html(message)
         lists = file.splicing()
         self.bot.send_chat_action(message.chat.id, 'typing')
         self.url_in = message.text
@@ -345,7 +347,7 @@ class meat:
         self.bot.send_message(message.chat.id, "修改成功")
 
     def urladd(self):
-        self.file_html = f'{File_HTEML}/{self.url_in}.html'
+        self.file_html = f'{File_HTEML}/{self.id}/{self.url_in}.html'
         self.openhtml()
         self.bs4()
         self.__server_html()
@@ -434,8 +436,9 @@ class meat:
             file.write(html)
 
 class file_html:
-    def __init__(self):
-        self.path = File_HTEML
+    def __init__(self,message):
+        self.id = message.chat.id
+        self.path = f"{File_HTEML}/{self.id}"
         self.list_immediate_subdirectories()
         self.file_splicing()
     def list_immediate_subdirectories(sefl):
