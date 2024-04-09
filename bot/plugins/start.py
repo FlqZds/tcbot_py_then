@@ -88,7 +88,7 @@ class button:
         itembtn4 = types.KeyboardButton("#添加用户")
         itembtn5 = types.KeyboardButton("#删除管理员")
         itembtn6 = types.KeyboardButton("#删除用户")
-        itembtn7 = types.KeyboardButton("*查看网页路径")
+        itembtn7 = types.KeyboardButton("*查看模板路径")
         itembtn8 = types.KeyboardButton("*复制网页模板")
         itembtn9 = types.KeyboardButton("*查看落地页网址")
         itembtn10 = types.KeyboardButton("*改跳转")
@@ -248,15 +248,22 @@ class rehtml():
         self.server_web_html_command()
 
     def __file_html(self):
-        if self.command == '查看网页路径':
-            self.web_file()
+        if self.command == '查看模板路径':
+            self.template_html_def()
+
+    def template_html_def(self):
+        file = template_html(self.message)
+        lists = file.splicing()
+        lists = str(lists)
+        cleaned_string = lists.strip("[]").replace(",", "\n")
+        self.bot.send_message(self.message.chat.id, f"现有模板路径:\n{cleaned_string}")
 
     def web_file(self):
         file = file_html(self.message)
         lists = file.splicing()
         lists = str(lists)
         cleaned_string = lists.strip("[]").replace(",", "\n")
-        self.bot.send_message(self.message.chat.id, f"现有网页路径:\n{cleaned_string}")
+        self.bot.send_message(self.message.chat.id, f"现有网站路径:\n{cleaned_string}")
 
     def server_web_html_command(self):
         if self.command == "查看落地页网址":
@@ -475,6 +482,44 @@ class file_html:
     def __init__(self,message):
         self.id = message.chat.id
         self.path = f"{File_HTEML}/{self.id}"
+        self.list_immediate_subdirectories()
+        self.file_splicing()
+    def list_immediate_subdirectories(sefl):
+        immediate_subdirectories = []
+        entries = os.listdir(sefl.path)
+        for entry in entries:
+            path = os.path.join(sefl.path, entry)
+            if os.path.isdir(path):
+                immediate_subdirectories.append(entry)
+        sefl.file_lists = immediate_subdirectories
+
+    def file_splicing(self):
+        html_files = []
+        for file_list in self.file_lists:
+            file = f"{self.path}/{file_list}"
+            entries = os.listdir(file)
+            for entry in entries:
+                full_path = os.path.join(file, entry)
+                # 检查这个路径是否是一个文件
+                if os.path.isfile(full_path) and full_path.endswith('.html'):
+                    html_files.append(full_path)
+        self.html_file_names = [os.path.basename(path) for path in html_files]
+
+    def splicing(self):
+        i = 0
+        file_list = []
+        for list in self.file_lists:
+            html_name = str(self.html_file_names[i])[:-5]
+            file_list.append(f"{list}/{html_name}")
+            i+=1
+        return file_list
+class template_html:
+    """
+    用于获取网页模板路径
+    """
+    def __init__(self,message):
+        self.id = message.chat.id
+        self.path = f"{Template_HTML}"
         self.list_immediate_subdirectories()
         self.file_splicing()
     def list_immediate_subdirectories(sefl):
