@@ -4,12 +4,16 @@ import shutil
 from bot.handler_type import PluginInterface
 from pybt.system import System
 from pybt.sites import Sites
-from bot.config import URL,KEY,HELP,File_HTEML,DateFile,Template_HTML
+from bot.config import URL,KEY,HELP,File_HTEML,DateFile,Template_HTML,Domain
 from bs4 import BeautifulSoup
 import json
 import re
 import time
 class StartPlugin(PluginInterface):
+    """
+    机器人命令入口
+
+    """
     command = 'start'
     def handler_command(self,bot,message):
         markup = types.InlineKeyboardMarkup()
@@ -67,6 +71,9 @@ class StartPlugin(PluginInterface):
 
 #外置键盘控制
 class button:
+    """
+    外置键盘控制
+    """
     def __read_date(self):
         self.DateFile = DateFile
         with open(file=self.DateFile,mode='r',encoding='utf-8') as date:
@@ -74,7 +81,7 @@ class button:
         self.admin_date
     def open_admin(self,bot,message):
         self.__read_date()
-        markup = types.ReplyKeyboardMarkup(row_width=2)  # row_width可以控制外置键盘一排放几个
+        markup = types.ReplyKeyboardMarkup(row_width=3)  # row_width可以控制外置键盘一排放几个
         itembtn1 = types.KeyboardButton("#管理员列表")
         itembtn2 = types.KeyboardButton("#用户列表")
         itembtn3 = types.KeyboardButton("#添加管理员")
@@ -83,19 +90,23 @@ class button:
         itembtn6 = types.KeyboardButton("#删除用户")
         itembtn7 = types.KeyboardButton("*查看网页路径")
         itembtn8 = types.KeyboardButton("*复制网页模板")
-        itembtn9 = types.KeyboardButton("*改跳转")
-        itembtn10 = types.KeyboardButton("*加像素")
-        itembtn11 = types.KeyboardButton("*像素列表")
+        itembtn9 = types.KeyboardButton("*查看落地页网址")
+        itembtn10 = types.KeyboardButton("*改跳转")
+        itembtn11 = types.KeyboardButton("*加像素")
+        itembtn12 = types.KeyboardButton("*像素列表")
         if message.chat.id in self.admin_date["Admin"]:
             print(f"管理员{message.chat.username}启动外置键盘     {time.ctime()}")
-            markup.add(itembtn1, itembtn2,itembtn3,itembtn4,itembtn5,itembtn6,itembtn7,itembtn8,itembtn9,itembtn10,itembtn11)
+            markup.add(itembtn1, itembtn2,itembtn3,itembtn4,itembtn5,itembtn6,itembtn7,itembtn8,itembtn9,itembtn10,itembtn11,itembtn12)
         elif message.chat.id in self.admin_date["user"]:
             print(f"用户{message.chat.username}启动外置键盘     {time.ctime()}")
-            markup.add(itembtn7,itembtn8,itembtn9,itembtn10,itembtn11)
+            markup.add(itembtn7,itembtn8,itembtn9,itembtn10,itembtn11,itembtn12)
         bot.send_message(message.chat.id, "外置键盘启动", reply_markup=markup)
 
 #权限管理机制
 class authorityManagement:
+    """
+    权限管理机制
+    """
     def __init__(self,bot,message):
         self.bot = bot
         self.message = message
@@ -234,18 +245,38 @@ class rehtml():
         self.command = message.text.split(' ', 1)[0][1:]
         self.command_user()
         self.__file_html()
+        self.server_web_html_command()
 
     def __file_html(self):
         if self.command == '查看网页路径':
-            file = file_html(self.message)
-            lists = file.splicing()
-            lists = str(lists)
-            cleaned_string = lists.strip("[]").replace(",", "\n")
-            self.bot.send_message(self.message.chat.id,f"现有网页路径:\n{cleaned_string}")
+            self.web_file()
+
+    def web_file(self):
+        file = file_html(self.message)
+        lists = file.splicing()
+        lists = str(lists)
+        cleaned_string = lists.strip("[]").replace(",", "\n")
+        self.bot.send_message(self.message.chat.id, f"现有网页路径:\n{cleaned_string}")
+
+    def server_web_html_command(self):
+        if self.command == "查看落地页网址":
+            self.server_web_html()
+            str_html = str(self.server_web)
+            str_html = str_html.strip("[]").replace(",", "\n")
+            self.bot.send_message(self.message.chat.id, f"落地页网址:\n{str_html}")
+
+    def server_web_html(self):
+        file = file_html(self.message)
+        lists = file.splicing()
+        self.server_web = []
+        for list in lists:
+            web_file_html = f'{Domain}/{self.id}/{list}.html'
+            self.server_web.append(web_file_html)
 
     def command_user(self):
         if self.command == "改跳转":
-            self.bot.send_message(self.message.chat.id,"请输入要修改的网页地址: ")
+            self.web_file()
+            self.bot.send_message(self.message.chat.id,"请输入要修改的网页路径: ")
             self.bot.register_next_step_handler(self.message,self.__file_html_in)
 
     def __file_html_in(self,message):
@@ -319,7 +350,9 @@ class meat:
 
     def command_user(self):
         if self.command == "加像素":
-            self.bot.send_message(self.message.chat.id, "请输入要修改的网页地址: ")
+            web = rehtml(self.bot,self.message)
+            web.web_file()
+            self.bot.send_message(self.message.chat.id, "请输入要修改的网页路径: ")
             self.bot.register_next_step_handler(self.message, self.__file_html_in)
 
     def mate_list(self):
@@ -436,6 +469,9 @@ class meat:
             file.write(html)
 
 class file_html:
+    """
+    用于获取网页路径
+    """
     def __init__(self,message):
         self.id = message.chat.id
         self.path = f"{File_HTEML}/{self.id}"
@@ -548,11 +584,13 @@ class webModules:
                 shutil.move(f"{destPath}/{self.id}/{self.cmd}/{self.cmd}",f"{destPath}/")
                 shutil.rmtree(f"{destPath}/{self.id}/{self.cmd}")
                 shutil.move(f"{destPath}/{self.cmd}", f"{destPath}/{self.id}")
+                self.bot.send_message(self.message.chat.id, "模板创建成功")
             else:
                 self.bot.send_message(self.message.chat.id, "没有该模板文件")
                 print(f'没有该模板文件    {time.ctime()}')
         except Exception as e:
             print(f'创建文件夹 失败 ，{e} {time.ctime()}')
+            self.bot.send_message(self.message.chat.id, "模板创建失败，请检查路径是否正确(当前版本下：若网页路径已存在，也会创建失败可以使用“*查看网页路径”查看)")
 
 
 if __name__ == '__main__':

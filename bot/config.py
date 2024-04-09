@@ -20,6 +20,8 @@ Template_HTML = '../html'
 #网页地址配置
 File_HTEML = '../user'
 
+#域名地址
+Domain = "http://dome123456.xyz"
 
 #宝塔api配置
 URL = "http://47.94.149.204:35560/"
