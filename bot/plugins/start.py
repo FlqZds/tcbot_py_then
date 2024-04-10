@@ -714,6 +714,7 @@ class userNumber_id:
     def open_id(self):
         with open(file=self.id_file, mode='r', encoding='utf-8') as date:
                 self.id_date = json.load(date)
+
     def is_ena_in_id(self):
         if self.userid in str(self.admin_date['user']):
             self.update_id()
