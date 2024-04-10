@@ -19,7 +19,6 @@ elif platform.system() == 'Linux':
     print(f"\033[34mlinux系统启动       {time.ctime()}\33[m")
     sys.path.append('/www/wwwroot/TcBot')  #linux加载软件包的路径
 
-
 #插件目录
 PLUGIN_DIR = 'plugins'
 #初始化机器人
