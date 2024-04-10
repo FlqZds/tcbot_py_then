@@ -4,7 +4,7 @@ import shutil
 from bot.handler_type import PluginInterface
 from pybt.system import System
 from pybt.sites import Sites
-from bot.config import URL,KEY,HELP,File_HTEML,DateFile,Template_HTML,Domain
+from bot.config import URL,KEY,HELP,File_HTEML,DateFile,Template_HTML,Domain,IDFile
 from bs4 import BeautifulSoup
 import json
 import re
@@ -279,9 +279,12 @@ class rehtml():
     def server_web_html(self):
         file = file_html(self.message)
         lists = file.splicing()
+        idn = userNumber_id(str(self.id))
+        dictionary = idn.id_date
+        self.val = chr(dictionary[f'{str(self.id)}'])
         self.server_web = []
         for list in lists:
-            web_file_html = f'{Domain}/{self.id}/{list}.html'
+            web_file_html = f'{Domain}/{self.val}/{list}.html'
             self.server_web.append(web_file_html)
 
     def command_user(self):
@@ -308,7 +311,10 @@ class rehtml():
         self.bot.send_message(message.chat.id,"修改成功")
 
     def urladd(self):
-        self.file_html = f'{File_HTEML}/{self.id}/{self.url_in}.html'
+        idn = userNumber_id(str(self.id))
+        dictionary = idn.id_date
+        self.val = chr(dictionary[f'{str(self.id)}'])
+        self.file_html = f'{File_HTEML}/{self.val}/{self.url_in}.html'
         self.openhtml()
         self.db4()
         self.__server_html()
@@ -388,10 +394,14 @@ class meat:
         self.bot.send_chat_action(message.chat.id, 'typing')
         self.meat = message.text
         self.urladd()
-        self.bot.send_message(message.chat.id, "修改成功")
+        self.bot.send_message(message.chat.id, "添加成功")
+        print(f"{self.id}添加像素成功     {time.ctime()}")
 
     def urladd(self):
-        self.file_html = f'{File_HTEML}/{self.id}/{self.url_in}.html'
+        idn = userNumber_id(str(self.id))
+        dictionary = idn.id_date
+        self.val = chr(dictionary[f'{str(self.id)}'])
+        self.file_html = f'{File_HTEML}/{self.val}/{self.url_in}.html'
         self.openhtml()
         self.bs4()
         self.__server_html()
@@ -485,7 +495,10 @@ class file_html:
     """
     def __init__(self,message):
         self.id = message.chat.id
-        self.path = f"{File_HTEML}/{self.id}"
+        idn = userNumber_id(str(self.id))
+        dictionary = idn.id_date
+        self.val = chr(dictionary[f'{str(self.id)}'])
+        self.path = f"{File_HTEML}/{self.val}"
         self.list_immediate_subdirectories()
         self.file_splicing()
     def list_immediate_subdirectories(sefl):
@@ -566,6 +579,7 @@ class userpage:
     def __init__(self, bot, message):
         self.bot = bot
         self.message = message
+        self.id_file = IDFile
         self.file_list = File_HTEML
         self.DateFile = DateFile
         self.__read_admin()
@@ -578,8 +592,11 @@ class userpage:
     # 生成以用户id命名的文件夹
     def create_dir(self):
         userid = str(self.message.chat.id)
+        idn = userNumber_id(userid)
+        dictionary = idn.id_date
+        val = chr(dictionary[f'{userid}'])
         # 指定生成文件夹路径
-        userdir = os.path.join(self.file_list, userid)
+        userdir = os.path.join(self.file_list, val)
         # 获取当前用户id并转为int
         id = int(userid)
         # 判断该id是否在user列表里
@@ -597,6 +614,7 @@ class userpage:
                 os.makedirs(userdir)
                 print(f"已创建管理员文件夹      {time.ctime()}")
 
+
 class webModules:
     '''
     zds
@@ -612,6 +630,9 @@ class webModules:
         self.command = message.text.split(' ', 1)[0][1:]
         self.path = Template_HTML
         self.File_HTEML = File_HTEML
+        idn = userNumber_id(str(self.id))
+        dictionary = idn.id_date
+        self.val = chr(dictionary[f'{str(self.id)}'])
         self.command_user()
         self.command_del()
     def command_del(self):
@@ -625,6 +646,10 @@ class webModules:
 
     def command_user(self):
         if self.command == '复制网页模板':
+            destPath = self.File_HTEML
+            destDirList = os.listdir(self.path)  # 要复制路径的 文件夹·文件
+            list = str(destDirList).strip('[]').replace("'", "").replace(",", "\n")
+            self.bot.send_message(self.message.chat.id, f"已有模板名称:\n {list}")
             self.bot.send_message(self.message.chat.id, "请输入要复制的模板名称: ")
             self.bot.register_next_step_handler(self.message,self.copy_template)
 
@@ -637,16 +662,17 @@ class webModules:
         self.bot.send_chat_action(message.chat.id, 'typing')
         self.cmd = message.text
         self.copyFiles()
+
     def copyFiles(self):
         try:
             destPath = self.File_HTEML
             destDirList = os.listdir(self.path)  # 要复制路径的 文件夹·文件
             if self.cmd in destDirList:
-                copyResult = shutil.copytree(self.path, f"{destPath}/{self.id}/{self.cmd}")
+                copyResult = shutil.copytree(self.path, f"{destPath}/{self.val}/{self.cmd}")
                 print(f'{copyResult}，文件已成功创建    {time.ctime()}')
-                shutil.move(f"{destPath}/{self.id}/{self.cmd}/{self.cmd}",f"{destPath}/")
-                shutil.rmtree(f"{destPath}/{self.id}/{self.cmd}")
-                shutil.move(f"{destPath}/{self.cmd}", f"{destPath}/{self.id}")
+                shutil.move(f"{destPath}/{self.val}/{self.cmd}/{self.cmd}",f"{destPath}/")
+                shutil.rmtree(f"{destPath}/{self.val}/{self.cmd}")
+                shutil.move(f"{destPath}/{self.cmd}", f"{destPath}/{self.val}")
                 self.bot.send_message(self.message.chat.id, "模板创建成功")
             else:
                 self.bot.send_message(self.message.chat.id, "没有该模板文件")
@@ -656,7 +682,7 @@ class webModules:
             self.bot.send_message(self.message.chat.id, "模板创建失败，请检查路径是否正确(当前版本下：若网页路径已存在，也会创建失败可以使用“*查看网页路径”查看)")
     def deleteWebTemplate(self):  # 删除网页模板
         try:
-            destPath = f'{self.File_HTEML}/{self.id}'  #工作目录
+            destPath = f'{self.File_HTEML}/{self.val}'  #工作目录
             webTamplate_list = os.listdir(f'{destPath}')  # 找到用户所有的模板 导出为列表
             if f'{self.cmd}' in webTamplate_list:    #判断删除的目标是否在工作列表中
                 shutil.rmtree(f'{destPath}/{self.cmd}')
@@ -667,9 +693,45 @@ class webModules:
         except Exception as e:
             print(f'模板文件夹删除失败 ，{e} {time.ctime()}')
 
+class userNumber_id:
+    """
+    用户id对应字符
+    """
+    def __init__(self,userid):
+        self.id_file = IDFile
+        self.DateFile = DateFile
+        self.userid = userid
+        self.open_id()
+        self.read_admin()
+        self.index = list(self.id_date.values())
+        self.id_max = max(self.index)
+        self.is_ena_in_id()
+        self.server_id()
+    def read_admin(self):
+        with open(file=self.DateFile, mode='r', encoding='utf-8') as date:
+            self.admin_date = json.load(date)
+        self.admin_date
+    def open_id(self):
+        with open(file=self.id_file, mode='r', encoding='utf-8') as date:
+                self.id_date = json.load(date)
+    def is_ena_in_id(self):
+        if self.userid in str(self.admin_date['user']):
+            self.update_id()
+        elif self.userid in str(self.admin_date['Admin']):
+            self.update_id()
+        else:
+            print("用户id未添加")
 
+    def update_id(self):
+        if self.userid in self.id_date.keys():
+            print(f"用户id存在     {time.ctime()}")
+        else:
+            self.id_date.update({self.userid:self.id_max + 1})
+            print(f"用户对应id已更新    {time.ctime()}")
+    def server_id(self):
+        with open(file=self.id_file, mode='w', encoding='utf-8') as date:
+            date.write(json.dumps(self.id_date, ensure_ascii=False))
 
 
 if __name__ == '__main__':
-    dome = file_html()
-    print(dome.splicing())
+    pass

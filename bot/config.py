@@ -29,6 +29,7 @@ KEY = "dMggIkipqz8bZyDhXLTPlpnTX1PdtHNE"
 
 #权限管理机制与储存
 DateFile = './date/ena.json'
+IDFile = './date/id.json'
 
 #帮助信息设置
 HELP = f"help文档(测试阶段)\n 新用户使用时请先输入/start获取id，联系管理员添加id后即可正常使用"
