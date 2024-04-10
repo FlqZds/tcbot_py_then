@@ -8,6 +8,7 @@ import time
 import logging
 import sys
 import platform
+
 #玄学加载
 print(Banner)
 # 获取操作系统名称
