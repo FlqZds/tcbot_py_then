@@ -726,11 +726,11 @@ class userNumber_id:
         elif self.userid in str(self.admin_date['Admin']):
             self.update_id()
         else:
-            print("用户id未添加")
+            print(f"用户id:{self.userid}未添加 {time.ctime()}")
 
     def update_id(self):
         if self.userid in self.id_date.keys():
-            print(f"用户id存在     {time.ctime()}")
+            print(f"用户id:{self.userid}存在     {time.ctime()}")
         else:
             self.id_date.update({self.userid:self.id_max + 1})
             print(f"用户对应id已更新    {time.ctime()}")
