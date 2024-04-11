@@ -375,8 +375,9 @@ class meat:
     def mate_list(self):
         if self.command == "像素列表":
             self.json_open()
-            date = str(self.intjson['mate'])
-            date = date.replace(",","\n")
+            date = str(self.intjson['mate'][f'{self.id}'])
+            # 不显示前七个字符
+            date = date.strip("{}").replace(",","\n")[7:]
             self.bot.send_message(self.message.chat.id,date)
 
     def __file_html_in(self,message):
@@ -753,7 +754,6 @@ class pixelsList:
             self.intjson = json.load(f)
             print(f'json打印：{self.intjson} \n    {time.ctime()}')
 
-
     def server_id(self,writed_Data):    # 将内存数据写入json
         with open(file=self.DateFile, mode='w', encoding='utf-8') as date:
             date.write(json.dumps(writed_Data, ensure_ascii=False))
@@ -766,9 +766,11 @@ class pixelsList:
             # username其实是mate
             # 获取userid里的pixelid的最大值，然后+1
             self.pixelID = str(int(max(self.intjson['mate'][userId].keys())) + 1)
+            # 获取用户输入的像素id
             self.intjson['mate'][userId].update({self.pixelID: pixelContent})
+            # 写入数据
             self.server_id(self.intjson)
-        #         如果判断username没在mate里，就建立新的“userid”字典，
+        # 如果判断username没在mate里，就建立新的“userid”字典，并添加当前所要添加的像素id
         else:
             print(f'用户id不存在，创建id表   {time.ctime()}')
             self.intjson['mate'][userId] = {"0":""}
