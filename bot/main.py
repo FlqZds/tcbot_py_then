@@ -78,4 +78,5 @@ try:
     print(f"目前可使用命令{commands}")
     bot.polling()
 except Exception as e:
-    print(f"\033[31m出现错误 {e} \033[m")
+    print(f"\033[31m出现错误 {e}            {time.ctime()}\033[m")
+    bot.polling()
