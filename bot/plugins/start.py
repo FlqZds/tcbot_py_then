@@ -20,9 +20,9 @@ class StartPlugin(PluginInterface):
         # 返回callback_data一个 1-64字节的数据
         itembtn2 = types.InlineKeyboardButton('帮助信息', callback_data="help")
         markup.add(itembtn2)
-        # #根据当前用户id创建家目录
-        # page = userpage(bot,message)
-        # page.create_dir()
+        #根据当前用户id创建家目录
+        page = userpage(bot,message)
+        page.create_dir()
         #外置键盘设置
         show_button = button()
         show_button.open_admin(bot,message)
@@ -274,7 +274,7 @@ class rehtml():
                 self.bot.send_message(self.message.chat.id, f"落地页网址:\n{str_html}")
             except:
                 print(f"用户未初始化      {time.ctime()}")
-                self.bot.send_message(self.message.chat.id, "请先使用*复制模板命令创建路径")
+                self.bot.send_message(self.message.chat.id, "请输入/start创建路径")
 
     def server_web_html(self):
         file = file_html(self.message)
@@ -393,6 +393,8 @@ class meat:
     def __url_html_in(self,message):
         self.bot.send_chat_action(message.chat.id, 'typing')
         self.meat = message.text
+        pixels_new = pixelsList()
+        pixels_new.json_Judge_mate(self.id,self.meat)
         self.urladd()
         self.bot.send_message(message.chat.id, "添加成功")
         print(f"{self.id}添加像素成功     {time.ctime()}")
@@ -598,7 +600,7 @@ class userpage:
         # 指定生成文件夹路径
         userdir = os.path.join(self.file_list, val)
         # 获取当前用户id并转为int
-        id = int(self.userid)
+        id = int(userid)
         # 判断该id是否在user列表里
         if id in self.admin_date['user']:
             # 判断该文件夹是否存在
@@ -729,10 +731,52 @@ class userNumber_id:
         else:
             self.id_date.update({self.userid:self.id_max + 1})
             print(f"用户对应id已更新    {time.ctime()}")
-
     def server_id(self):
         with open(file=self.id_file, mode='w', encoding='utf-8') as date:
             date.write(json.dumps(self.id_date, ensure_ascii=False))
+
+class pixelsList:
+    '''
+    创建像素列表，每个用户只能输出自己的像素
+    '''
+    def __init__(self):
+        self.id_file = IDFile
+        self.DateFile = DateFile
+        self.intjson = {}
+        self.pixelID='0'
+        self.pixelContent='0'
+
+
+    def json_open(self):  # 读取user中的id字典
+        self.DateFile = DateFile
+        with open(self.DateFile, mode='r', encoding='utf-8') as f:
+            self.intjson = json.load(f)
+            print(f'json打印：{self.intjson} \n    {time.ctime()}')
+
+
+    def server_id(self,writed_Data):    # 将内存数据写入json
+        with open(file=self.DateFile, mode='w', encoding='utf-8') as date:
+            date.write(json.dumps(writed_Data, ensure_ascii=False))
+
+    def json_Judge_mate(self, userId, pixelContent):
+        # 判断是否在mate里，在就执行加载像素
+        # userId在，就更新 该userId的值，否则建立新的userid字典
+        self.json_open()
+        if userId in self.intjson['mate']:
+            # username其实是mate
+            # 获取userid里的pixelid的最大值，然后+1
+            self.pixelID = str(int(max(self.intjson['mate'][userId].keys())) + 1)
+            self.intjson['mate'][userId].update({self.pixelID: pixelContent})
+            self.server_id(self.intjson)
+        #         如果判断username没在mate里，就建立新的“userid”字典，
+        else:
+            print(f'用户id不存在，创建id表   {time.ctime()}')
+            self.intjson['mate'][userId] = {"0":""}
+            self.pixelID = str(int(max(self.intjson['mate'][userId].keys())) + 1)
+            self.intjson['mate'][userId].update({self.pixelID: pixelContent})
+            self.server_id(self.intjson)
+            print(self.intjson)
+            self.server_id(self.intjson)
 
 
 if __name__ == '__main__':
