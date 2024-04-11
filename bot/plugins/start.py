@@ -377,7 +377,7 @@ class meat:
             self.json_open()
             date = str(self.intjson['mate'][f'{self.id}'])
             # 不显示前七个字符
-            date = date.strip("{}").replace(",","\n")[7:]
+            date = date.strip("{}").replace(",","\n")[18:]
             self.bot.send_message(self.message.chat.id,date)
 
     def __file_html_in(self,message):
@@ -394,8 +394,10 @@ class meat:
     def __url_html_in(self,message):
         self.bot.send_chat_action(message.chat.id, 'typing')
         self.meat = message.text
+        # 初始化pixelsList类
         pixels_new = pixelsList()
-        pixels_new.json_Judge_mate(self.id,self.meat)
+        # 调用json_Judge_mate方法
+        pixels_new.json_Judge_mate(self.id,self.meat,self.url_in)
         self.urladd()
         self.bot.send_message(message.chat.id, "添加成功")
         print(f"{self.id}添加像素成功     {time.ctime()}")
@@ -758,27 +760,35 @@ class pixelsList:
         with open(file=self.DateFile, mode='w', encoding='utf-8') as date:
             date.write(json.dumps(writed_Data, ensure_ascii=False))
 
-    def json_Judge_mate(self, userId, pixelContent):
+    def json_Judge_mate(self, userId, pixelContent, page_url):
         # 判断是否在mate里，在就执行加载像素
         # userId在，就更新 该userId的值，否则建立新的userid字典
         self.json_open()
-        if userId in self.intjson['mate']:
+        if userId in self.intjson['mate'] and page_url in self.intjson['mate'][userId]:
             # username其实是mate
             # 获取userid里的pixelid的最大值，然后+1
-            self.pixelID = str(int(max(self.intjson['mate'][userId].keys())) + 1)
+            self.pixelID = str(int(max(self.intjson['mate'][userId][page_url].keys())) + 1)
             # 获取用户输入的像素id
-            self.intjson['mate'][userId].update({self.pixelID: pixelContent})
+            self.intjson['mate'][userId][page_url].update({self.pixelID: pixelContent})
             # 写入数据
             self.server_id(self.intjson)
         # 如果判断username没在mate里，就建立新的“userid”字典，并添加当前所要添加的像素id
         else:
             print(f'用户id不存在，创建id表   {time.ctime()}')
-            self.intjson['mate'][userId] = {"0":""}
-            self.pixelID = str(int(max(self.intjson['mate'][userId].keys())) + 1)
-            self.intjson['mate'][userId].update({self.pixelID: pixelContent})
+            self.intjson['mate'][userId] = {f"{page_url}":{}}
+            self.intjson['mate'][userId][page_url] = {"0":""}
+            self.pixelID = str(int(max(self.intjson['mate'][userId][page_url].keys())) + 1)
+            self.intjson['mate'][userId][page_url].update({self.pixelID: pixelContent})
             self.server_id(self.intjson)
             print(self.intjson)
             self.server_id(self.intjson)
+
+    # 用于删除用户指定像素，通过像素id来删除
+    def del_pix(self, userId, pixelID):
+        self.json_open()
+        if userId in self.intjson['mate']:
+            del self.intjson['mate'][userId][pixelID]
+            print(f'用户已删除 {pixelID}像素   {time.ctime()}')
 
 
 if __name__ == '__main__':
