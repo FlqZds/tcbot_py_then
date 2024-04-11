@@ -402,7 +402,6 @@ class meat:
         self.bot.send_message(message.chat.id, "添加成功")
         print(f"{self.id}添加像素成功     {time.ctime()}")
 
-
     def urladd(self):
         idn = userNumber_id(str(self.id))
         dictionary = idn.id_date
