@@ -394,7 +394,9 @@ class meat:
     def __url_html_in(self,message):
         self.bot.send_chat_action(message.chat.id, 'typing')
         self.meat = message.text
+        # 初始化pixelsList类
         pixels_new = pixelsList()
+        # 调用json_Judge_mate方法
         pixels_new.json_Judge_mate(self.id,self.meat)
         self.urladd()
         self.bot.send_message(message.chat.id, "添加成功")
