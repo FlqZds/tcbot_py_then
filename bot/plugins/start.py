@@ -20,9 +20,9 @@ class StartPlugin(PluginInterface):
         # 返回callback_data一个 1-64字节的数据
         itembtn2 = types.InlineKeyboardButton('帮助信息', callback_data="help")
         markup.add(itembtn2)
-        #根据当前用户id创建家目录
-        page = userpage(bot,message)
-        page.create_dir()
+        # #根据当前用户id创建家目录
+        # page = userpage(bot,message)
+        # page.create_dir()
         #外置键盘设置
         show_button = button()
         show_button.open_admin(bot,message)
@@ -274,7 +274,7 @@ class rehtml():
                 self.bot.send_message(self.message.chat.id, f"落地页网址:\n{str_html}")
             except:
                 print(f"用户未初始化      {time.ctime()}")
-                self.bot.send_message(self.message.chat.id, "请输入/start创建路径")
+                self.bot.send_message(self.message.chat.id, "请先使用*复制模板命令创建路径")
 
     def server_web_html(self):
         file = file_html(self.message)
@@ -598,7 +598,7 @@ class userpage:
         # 指定生成文件夹路径
         userdir = os.path.join(self.file_list, val)
         # 获取当前用户id并转为int
-        id = int(userid)
+        id = int(self.userid)
         # 判断该id是否在user列表里
         if id in self.admin_date['user']:
             # 判断该文件夹是否存在
@@ -729,6 +729,7 @@ class userNumber_id:
         else:
             self.id_date.update({self.userid:self.id_max + 1})
             print(f"用户对应id已更新    {time.ctime()}")
+
     def server_id(self):
         with open(file=self.id_file, mode='w', encoding='utf-8') as date:
             date.write(json.dumps(self.id_date, ensure_ascii=False))
