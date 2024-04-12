@@ -839,11 +839,10 @@ class html_copy:
             if self.cmd in destDirList:
                 # 拼接用户输入的路径，该路径指定的是需要被复制的文件
                 source_filepath = f"{destPath}/{self.val}/{self.cmd}"
+                print(f'source_filepath {source_filepath}')
                 # 获取目标文件所在路径
-                target_directory = os.path.dirname(source_filepath)
                 self.bot.send_message(self.message.chat.id, "请输入新的落地页名称 :如eng1 ")
-                # 将target_directory与source_filepath传入新参数以便do——copy使用
-                self.target_directory1 = target_directory
+                # 将target_directory目标文件路径与source_filepath传入新参数以便do——copy使用
                 self.source_filepath1 = source_filepath
                 # 获取用户新输入的值，也就是获取新落地页的名称，然后执行do_copy
                 self.bot.register_next_step_handler(self.message, self.do_copy)
@@ -858,7 +857,7 @@ class html_copy:
         # 指定新文件的名称
         target_file_name = f'{self.cmd}.html'
         # 拼接目标文件完整路径
-        target_file_path = os.path.join(self.target_directory1, target_file_name)
+        target_file_path = os.path.join(self.source_filepath1, target_file_name)
         try:
             # 执行复制功能
             shutil.copy(self.source_filepath1, target_file_path)
