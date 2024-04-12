@@ -818,7 +818,7 @@ class html_copy:
             destDirList = os.listdir(f'{destPath}/{self.val}')  # 要复制路径的 文件夹·文件
             list = str(destDirList).strip('[]').replace("'", "").replace(",", "\n")
             self.bot.send_message(self.message.chat.id, f"已有落地页路径名称:\n {list}")
-            self.bot.send_message(self.message.chat.id, "请输入要复制的落地页路径:如us ")
+            self.bot.send_message(self.message.chat.id, "请输入要复制的落地页路径 :如us ")
             self.bot.register_next_step_handler(self.message, self.copy_template)
 
     def del_template(self, message):
