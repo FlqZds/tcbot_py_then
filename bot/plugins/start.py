@@ -267,6 +267,7 @@ class rehtml():
 
     def server_web_html_command(self):
         if self.command == "查看落地页网址":
+
             try:
                 self.server_web_html()
                 str_html = str(self.server_web)
