@@ -802,6 +802,7 @@ class html_copy:
     '''
     def __init__(self, bot, message):
         self.File_HTEML = File_HTEML
+        self.Template_HTEML = Template_HTML
         self.bot = bot
         self.id = message.chat.id
         self.message = message
@@ -833,27 +834,27 @@ class html_copy:
 
     def copyFiles(self):
         try:
-            destPath = self.File_HTEML
-            destDirList = os.listdir(f'{destPath}/{self.val}')  # 要复制路径的 文件夹·文件
+            destPath = self.Template_HTML
+            destDirList = os.listdir(f'{destPath}')  # 要复制的文件的路径
             if self.cmd in destDirList:
                 # 拼接用户输入的路径，该路径指定的是需要被复制的文件
-                source_filepath = f"{destPath}/{self.val}/{self.cmd}"
+                source_filepath = os.path.join(destPath,self.cmd)
                 # 获取目标文件所在路径
                 target_directory = os.path.dirname(source_filepath)
                 self.bot.send_message(self.message.chat.id, "请输入新的落地页名称 :如eng1 ")
                 # 获取用户输入的网页名称
                 target_file_name = f'{self.cmd}.html'
-                # 拼接目标文件完整路径
+                # 拼接目标文件的完整路径
                 target_file_path = os.path.join(target_directory, target_file_name)
                 try:
                     # 执行复制功能
-                    shutil.copy2(source_filepath, target_file_path)
+                    shutil.copyfile(source_filepath, target_file_path)
                     print(f"文件成功复制至{target_file_path}")
                     self.bot.send_message(self.message.chat.id, "成功复制 ")
                 except FileNotFoundError:
                     print(f"目标路径{source_filepath}不存在.")
-                # except PermissionError:
-                #     print(f"Error: Permission denied to copy to {target_file_path}.")
+                except PermissionError:
+                    print(f"无访问权限{target_file_path}.")
                 except Exception as e:
                     print(f"未知错误: {e}")
             else:
