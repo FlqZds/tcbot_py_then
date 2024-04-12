@@ -9,6 +9,10 @@ from bs4 import BeautifulSoup
 import json
 import re
 import time
+
+
+
+
 class StartPlugin(PluginInterface):
     """
         机器人命令入口
@@ -58,13 +62,15 @@ class StartPlugin(PluginInterface):
             elif message.text.startswith('*'):
                 jumpurl = rehtml(bot,message)
                 meatadd = meat(bot,message)
-                copy_html = webModules(bot, message)
+                copy_htmls = webModules(bot, message)
+                copy_enghtml = html_copy(bot, message)
         elif date == 'user':
             #用户可使用命令
             if message.text.startswith('*'):
                 jumpurl = rehtml(bot, message)
                 meatadd = meat(bot, message)
-                copy_html = webModules(bot,message)
+                copy_htmls = webModules(bot,message)
+                copy_enghtml = html_copy(bot,message)
         else:
             bot.send_message(message.chat.id, "您没有该权限")
 
@@ -783,12 +789,84 @@ class pixelsList:
             print(self.intjson)
             self.server_id(self.intjson)
 
-    # 用于删除用户指定像素，通过像素id来删除
+    # 用于删除用户指定网页中的像素
     def del_pix(self, userId, pixelID):
         self.json_open()
         if userId in self.intjson['mate']:
             del self.intjson['mate'][userId][pixelID]
             print(f'用户已删除 {pixelID}像素   {time.ctime()}')
+
+class html_copy:
+    '''
+    复制同一个家目录下的网页文件
+    '''
+    def __init__(self, bot, message):
+        self.File_HTEML = File_HTEML
+        self.bot = bot
+        self.id = message.chat.id
+        self.message = message
+        self.command = message.text.split(' ', 1)[0][1:]
+        idn = userNumber_id(str(self.id))
+        dictionary = idn.id_date
+        self.val = chr(dictionary[f'{str(self.id)}'])
+        self.command_user()
+
+    # 复制用户目录下的网址
+    def command_user(self):
+        if self.command == '复制用户网页':
+            destPath = self.File_HTEML
+            destDirList = os.listdir(f'{destPath}/{self.val}')  # 要复制路径的 文件夹·文件
+            list = str(destDirList).strip('[]').replace("'", "").replace(",", "\n")
+            self.bot.send_message(self.message.chat.id, f"已有网页名称:\n {list}")
+            self.bot.send_message(self.message.chat.id, "请输入要复制的网页:如us ")
+            self.bot.register_next_step_handler(self.message, self.copy_template)
+
+    def del_template(self, message):
+        self.bot.send_chat_action(message.chat.id, 'typing')
+        self.cmd = message.text
+        self.deleteWebTemplate()
+
+    def copy_template(self, message):
+        self.bot.send_chat_action(message.chat.id, 'typing')
+        self.cmd = message.text
+        self.copyFiles()
+
+    def copyFiles(self):
+        try:
+            destPath = self.File_HTEML
+            destDirList = os.listdir(f'{destPath}/{self.val}')  # 要复制路径的 文件夹·文件
+            if self.cmd in destDirList:
+                # 拼接用户输入的路径，该路径指定的是需要被复制的文件
+                source_filepath = f"{destPath}/{self.val}/{self.cmd}"
+                # 获取目标文件所在路径
+                target_directory = os.path.dirname(source_filepath)
+                self.bot.send_message(self.message.chat.id, "请输入新的网页名称:如eng1 ")
+                # 获取用户输入的网页名称
+                target_file_name = f'{self.cmd}.html'
+                # 拼接目标文件完整路径
+                target_file_path = os.path.join(target_directory, target_file_name)
+                try:
+                    # 执行复制功能
+                    shutil.copy2(source_filepath, target_file_path)
+                    print(f"文件成功复制至{target_file_path}")
+                    self.bot.send_message(self.message.chat.id, "成功复制 ")
+                except FileNotFoundError:
+                    print(f"目标路径{source_filepath}不存在.")
+                # except PermissionError:
+                #     print(f"Error: Permission denied to copy to {target_file_path}.")
+                except Exception as e:
+                    print(f"未知错误: {e}")
+            else:
+                self.bot.send_message(self.message.chat.id, "没有该路径")
+                print(f'没有该路径    {time.ctime()}')
+        except Exception as e:
+            print(f'创建文件夹 失败 ，{e} {time.ctime()}')
+            self.bot.send_message(self.message.chat.id,
+                                  "文件创建失败，请检查路径是否正确(当前版本下：若网页路径已存在，也会创建失败可以使用“*查看网页路径”查看)")
+
+
+
+
 
 
 if __name__ == '__main__':
