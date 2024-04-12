@@ -817,8 +817,8 @@ class html_copy:
             destPath = self.File_HTEML
             destDirList = os.listdir(f'{destPath}/{self.val}')  # 要复制路径的 文件夹·文件
             list = str(destDirList).strip('[]').replace("'", "").replace(",", "\n")
-            self.bot.send_message(self.message.chat.id, f"已有网页名称:\n {list}")
-            self.bot.send_message(self.message.chat.id, "请输入要复制的网页:如us ")
+            self.bot.send_message(self.message.chat.id, f"已有落地页路径名称:\n {list}")
+            self.bot.send_message(self.message.chat.id, "请输入要复制的落地页路径:如us ")
             self.bot.register_next_step_handler(self.message, self.copy_template)
 
     def del_template(self, message):
@@ -840,7 +840,7 @@ class html_copy:
                 source_filepath = f"{destPath}/{self.val}/{self.cmd}"
                 # 获取目标文件所在路径
                 target_directory = os.path.dirname(source_filepath)
-                self.bot.send_message(self.message.chat.id, "请输入新的网页名称:如eng1 ")
+                self.bot.send_message(self.message.chat.id, "请输入新的落地页名称:如eng1 ")
                 # 获取用户输入的网页名称
                 target_file_name = f'{self.cmd}.html'
                 # 拼接目标文件完整路径
@@ -863,7 +863,6 @@ class html_copy:
             print(f'创建文件夹 失败 ，{e} {time.ctime()}')
             self.bot.send_message(self.message.chat.id,
                                   "文件创建失败，请检查路径是否正确(当前版本下：若网页路径已存在，也会创建失败可以使用“*查看网页路径”查看)")
-
 
 
 
