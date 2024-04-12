@@ -847,7 +847,7 @@ class html_copy:
                 target_file_path = os.path.join(target_directory, target_file_name)
                 try:
                     # 执行复制功能
-                    shutil.copy2(source_filepath, target_file_path)
+                    shutil.copy(source_filepath, target_file_path)
                     print(f"文件成功复制至{target_file_path}")
                     self.bot.send_message(self.message.chat.id, "成功复制 ")
                 except FileNotFoundError:
