@@ -840,7 +840,7 @@ class html_copy:
                 source_filepath = f"{destPath}/{self.val}/{self.cmd}"
                 # 获取目标文件所在路径
                 target_directory = os.path.dirname(source_filepath)
-                self.bot.send_message(self.message.chat.id, "请输入新的落地页名称:如eng1 ")
+                self.bot.send_message(self.message.chat.id, "请输入新的落地页名称 :如eng1 ")
                 # 获取用户输入的网页名称
                 target_file_name = f'{self.cmd}.html'
                 # 拼接目标文件完整路径
