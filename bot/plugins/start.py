@@ -383,7 +383,7 @@ class meat:
             self.json_open()
             date = str(self.intjson['mate'][f'{self.id}'])
             # 不显示前七个字符
-            date = date.strip("{}").replace(",","\n")[7:]
+            date = date.strip("{}").replace(",","\n")[18:]
             self.bot.send_message(self.message.chat.id,date)
 
     def __file_html_in(self,message):
@@ -732,11 +732,11 @@ class userNumber_id:
         elif self.userid in str(self.admin_date['Admin']):
             self.update_id()
         else:
-            print("用户id未添加")
+            print(f"用户id:{self.userid}未添加 {time.ctime()}")
 
     def update_id(self):
         if self.userid in self.id_date.keys():
-            print(f"用户id存在     {time.ctime()}")
+            print(f"用户id:{self.userid}存在     {time.ctime()}")
         else:
             self.id_date.update({self.userid:self.id_max + 1})
             print(f"用户对应id已更新    {time.ctime()}")
@@ -781,8 +781,8 @@ class pixelsList:
         # 如果判断username没在mate里，就建立新的“userid”字典，并添加当前所要添加的像素id
         else:
             print(f'用户id不存在，创建id表   {time.ctime()}')
-            self.intjson['mate'][userId] = {{page_url}}
-            self.intjson['mate'][userId][page_url].update("0","")
+            self.intjson['mate'][userId] = {f"{page_url}":{}}
+            self.intjson['mate'][userId][page_url] = {"0":""}
             self.pixelID = str(int(max(self.intjson['mate'][userId][page_url].keys())) + 1)
             self.intjson['mate'][userId][page_url].update({self.pixelID: pixelContent})
             self.server_id(self.intjson)
