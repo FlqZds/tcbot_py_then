@@ -1,3 +1,5 @@
+from email import message
+
 from telebot import types
 import os
 import shutil
@@ -832,37 +834,47 @@ class html_copy:
         self.copyFiles()
 
     def copyFiles(self):
-        try:
             destPath = self.File_HTEML
-            destDirList = os.listdir(f'{destPath}/{self.val}')  # 要复制路径的 文件夹·文件
+            destDirList = (f'{destPath}/{self.val}')  # 要复制路径的 文件夹·文件
             if self.cmd in destDirList:
                 # 拼接用户输入的路径，该路径指定的是需要被复制的文件
                 source_filepath = f"{destPath}/{self.val}/{self.cmd}"
                 # 获取目标文件所在路径
                 target_directory = os.path.dirname(source_filepath)
                 self.bot.send_message(self.message.chat.id, "请输入新的落地页名称 :如eng1 ")
-                # 获取用户输入的网页名称
-                target_file_name = f'{self.cmd}.html'
-                # 拼接目标文件完整路径
-                target_file_path = os.path.join(target_directory, target_file_name)
-                try:
-                    # 执行复制功能
-                    shutil.copy(source_filepath, target_file_path)
-                    print(f"文件成功复制至{target_file_path}")
-                    self.bot.send_message(self.message.chat.id, "成功复制 ")
-                except FileNotFoundError:
-                    print(f"目标路径{source_filepath}不存在.")
-                # except PermissionError:
-                #     print(f"Error: Permission denied to copy to {target_file_path}.")
-                except Exception as e:
-                    print(f"未知错误: {e}")
+                # 将target_directory与source_filepath传入新参数以便do——copy使用
+                self.target_directory1 = target_directory
+                self.source_filepath1 = source_filepath
+                # 获取用户新输入的值，也就是获取新落地页的名称，然后执行do_copy
+                self.bot.register_next_step_handler(self.message, self.do_copy)
             else:
                 self.bot.send_message(self.message.chat.id, "没有该路径")
                 print(f'没有该路径    {time.ctime()}')
+
+    def do_copy(self,message):
+        self.bot.send_chat_action(message.chat.id, 'typing')
+        # 获取用户输入的新落地页名称
+        self.cmd = message.text
+        # 指定新文件的名称
+        target_file_name = f'{self.cmd}.html'
+        # 拼接目标文件完整路径
+        target_file_path = os.path.join(self.target_directory1, target_file_name)
+        try:
+            # 执行复制功能
+            shutil.copy(self.source_filepath1, target_file_path)
+            print(f"文件成功复制至{target_file_path}")
+            self.bot.send_message(self.message.chat.id, "成功复制 ")
+        except FileNotFoundError:
+            print(f"目标路径{source_filepath}不存在.")
+        except PermissionError:
+            print(f"Error: Permission denied to copy to {target_file_path}.")
+        except Exception as e:
+            print(f"未知错误: {e}")
         except Exception as e:
             print(f'创建文件夹 失败 ，{e} {time.ctime()}')
             self.bot.send_message(self.message.chat.id,
                                   "文件创建失败，请检查路径是否正确(当前版本下：若网页路径已存在，也会创建失败可以使用“*查看网页路径”查看)")
+
 
 
 
