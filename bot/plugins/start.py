@@ -113,7 +113,6 @@ class button:
             markup.add(itembtn7, itembtn8, itembtn9, itembtn10, itembtn11, itembtn12, itembtn13,itembtn14)
         bot.send_message(message.chat.id, "外置键盘启动", reply_markup=markup)
 
-
 # 权限管理机制
 class authorityManagement:
     """
