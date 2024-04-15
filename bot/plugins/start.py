@@ -842,10 +842,14 @@ class html_copy:
         if self.command == '复制用户网页':
             destPath = self.File_HTEML
             destDirList = os.listdir(f'{destPath}/{self.val}')  # 要复制路径的 文件夹·文件
-            list = str(destDirList).strip('[]').replace("'", "").replace(",", "\n")
-            self.bot.send_message(self.message.chat.id, f"已有落地页路径名称 :\n {list}")
-            self.bot.send_message(self.message.chat.id, "请输入要复制的落地页路径 :如us ")
-            self.bot.register_next_step_handler(self.message, self.copy_template)
+            print("destDirList:", len(destDirList))
+            if len(destDirList) == 0:
+                self.bot.send_message(self.message.chat.id ,"用户家目录不存在")
+            else:
+                list = str(destDirList).strip('[]').replace("'", "").replace(",", "\n")
+                self.bot.send_message(self.message.chat.id, f"已有落地页路径名称 :\n {list}")
+                self.bot.send_message(self.message.chat.id, "请输入要复制的落地页路径 :如us ")
+                self.bot.register_next_step_handler(self.message, self.copy_template)
 
     def del_template(self, message):
         self.bot.send_chat_action(message.chat.id, 'typing')
@@ -859,14 +863,17 @@ class html_copy:
 
     def copyFiles(self):
         destPath = self.File_HTEML
-        destDirList = (f'{destPath}/{self.val}')  # 要复制路径的 文件夹·文件
+        # 将目标路径指定到当前用户文件夹内
+        destDirList = (f'{destPath}/{self.val}')
         if self.cmd in destDirList:
-            # 拼接用户输入的路径，该路径指定的是需要被复制的文件
+            # 拼接用户输入的路径，该路径指定的是需要被复制的文件本身
             source_file = f"{destPath}/{self.val}/{self.cmd}/eng.html"
+            # 拼接用户输入的路径，该路径指定的是需要被复制的文件的文件夹
             source_filepath = f"{destPath}/{self.val}/{self.cmd}"
+            # 终端输出目标文件夹，验证是否获取到用户指定路径
             print(f'source_filepath {source_filepath}')
 
-            # 获取目标文件所在路径
+            # 让用户输入新文件名称
             self.bot.send_message(self.message.chat.id, "请输入新的落地页名称 :如eng1 ")
             # 将target_directory目标文件路径与source_filepath传入新参数以便do——copy使用
             self.source_filepath1 = source_filepath
@@ -881,9 +888,9 @@ class html_copy:
         self.bot.send_chat_action(message.chat.id, 'typing')
         # 获取用户输入的新落地页名称
         self.cmd = message.text
-        # 指定新文件的名称
+        # 将用户输入的新名称指定到新文件
         target_file_name = f'{self.cmd}.html'
-        # 拼接目标文件完整路径
+        # 拼接目标文件完整路径，即目标位置，以及文件名称
         target_file_path = os.path.join(self.source_filepath1, target_file_name)
         try:
             # 执行复制功能
@@ -892,14 +899,16 @@ class html_copy:
             self.bot.send_message(self.message.chat.id, "成功复制 ")
         except FileNotFoundError:
             print(f"目标路径{self.source_filepath1}不存在.")
+            self.bot.send_message(self.message.chat.id,"文件创建失败，目标路径{self.source_filepath1}不存在.")
         except PermissionError:
-            print(f"Error: Permission denied to copy to {target_file_path}.")
+            print(f"Error: 权限无法访问{target_file_path}.")
+            self.bot.send_message(self.message.chat.id,"权限无法访问，请确认路径是否正确")
         except Exception as e:
             print(f"未知错误: {e}")
+            self.bot.send_message(self.message.chat.id,"未知错误，请检查指令是否正确")
         except Exception as e:
             print(f'创建文件夹 失败 ，{e} {time.ctime()}')
-            self.bot.send_message(self.message.chat.id,
-                                  "文件创建失败，请检查路径是否正确(当前版本下：若网页路径已存在，也会创建失败可以使用“*查看网页路径”查看)")
+            self.bot.send_message(self.message.chat.id,"文件创建失败，请检查路径是否正确(当前版本下：若网页路径已存在，也会创建失败可以使用“*查看网页路径”查看)")
 
 
 if __name__ == '__main__':
