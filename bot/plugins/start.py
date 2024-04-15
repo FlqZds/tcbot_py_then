@@ -1,42 +1,46 @@
+from email import message
+
 from telebot import types
 import os
 import shutil
 from bot.handler_type import PluginInterface
 from pybt.system import System
 from pybt.sites import Sites
-from bot.config import URL,KEY,HELP,File_HTEML,DateFile,Template_HTML,Domain,IDFile
+from bot.config import URL, KEY, HELP, File_HTEML, DateFile, Template_HTML, Domain, IDFile
 from bs4 import BeautifulSoup
 import json
 import re
 import time
+
+
 class StartPlugin(PluginInterface):
     """
         机器人命令入口
     """
     command = 'start'
-    def handler_command(self,bot,message):
+
+    def handler_command(self, bot, message):
         markup = types.InlineKeyboardMarkup()
         # itembtn1 = types.InlineKeyboardButton('tcmiku的档案库', url='https://tcmiku.github.io')
         # 返回callback_data一个 1-64字节的数据
         itembtn2 = types.InlineKeyboardButton('帮助信息', callback_data="help")
         markup.add(itembtn2)
-        #根据当前用户id创建家目录
-        page = userpage(bot,message)
+        # 根据当前用户id创建家目录
+        page = userpage(bot, message)
         page.create_dir()
-        #外置键盘设置
+        # 外置键盘设置
         show_button = button()
-        show_button.open_admin(bot,message)
-        bot.send_message(message.chat.id, f"启动成功欢迎用户: {message.chat.username}\n您的用户id为：{message.chat.id}", reply_markup=markup)
+        show_button.open_admin(bot, message)
+        bot.send_message(message.chat.id, f"启动成功欢迎用户: {message.chat.username}\n您的用户id为：{message.chat.id}",
+                         reply_markup=markup)
 
-    def handler_back(self,bot,call):
+    def handler_back(self, bot, call):
         bot.send_message(call.message.chat.id, HELP)
 
+    # 权限判断机制
+    def admin_start(self, bot, message):
 
-
-    #权限判断机制
-    def admin_start(self,bot,message):
-
-        with open(file=DateFile,mode='r',encoding='utf-8') as date:
+        with open(file=DateFile, mode='r', encoding='utf-8') as date:
             admin_date = json.load(date)
         admin_date
         if message.from_user.id in admin_date["Admin"]:
@@ -46,39 +50,44 @@ class StartPlugin(PluginInterface):
         else:
             return None
 
-    def handle_message(self,bot,message):
-        date = self.admin_start(bot,message)
+    def handle_message(self, bot, message):
+        date = self.admin_start(bot, message)
         if date == 'admin':
-            #管理员可使用命令
-            #系统有关命令
+            # 管理员可使用命令
+            # 系统有关命令
             if message.text.startswith('!'):
-                systeams = systeam(bot,message)
+                systeams = systeam(bot, message)
             elif message.text.startswith('#'):
-                admin = authorityManagement(bot,message)
+                admin = authorityManagement(bot, message)
             elif message.text.startswith('*'):
-                jumpurl = rehtml(bot,message)
-                meatadd = meat(bot,message)
-                copy_html = webModules(bot, message)
+                jumpurl = rehtml(bot, message)
+                meatadd = meat(bot, message)
+                copy_htmls = webModules(bot, message)
+                copy_enghtml = html_copy(bot, message)
         elif date == 'user':
-            #用户可使用命令
+            # 用户可使用命令
             if message.text.startswith('*'):
                 jumpurl = rehtml(bot, message)
                 meatadd = meat(bot, message)
-                copy_html = webModules(bot,message)
+                copy_htmls = webModules(bot, message)
+                copy_enghtml = html_copy(bot, message)
         else:
             bot.send_message(message.chat.id, "您没有该权限")
 
-#外置键盘控制
+
+# 外置键盘控制
 class button:
     """
     外置键盘控制
     """
+
     def __read_date(self):
         self.DateFile = DateFile
-        with open(file=self.DateFile,mode='r',encoding='utf-8') as date:
+        with open(file=self.DateFile, mode='r', encoding='utf-8') as date:
             self.admin_date = json.load(date)
         self.admin_date
-    def open_admin(self,bot,message):
+
+    def open_admin(self, bot, message):
         self.__read_date()
         markup = types.ReplyKeyboardMarkup(row_width=3)  # row_width可以控制外置键盘一排放几个
         itembtn1 = types.KeyboardButton("#管理员列表")
@@ -96,18 +105,21 @@ class button:
         itembtn13 = types.KeyboardButton("*像素列表")
         if message.chat.id in self.admin_date["Admin"]:
             print(f"管理员{message.chat.username}启动外置键盘     {time.ctime()}")
-            markup.add(itembtn1, itembtn2,itembtn3,itembtn4,itembtn5,itembtn6,itembtn7,itembtn8,itembtn9,itembtn10,itembtn11,itembtn12,itembtn13)
+            markup.add(itembtn1, itembtn2, itembtn3, itembtn4, itembtn5, itembtn6, itembtn7, itembtn8, itembtn9,
+                       itembtn10, itembtn11, itembtn12, itembtn13)
         elif message.chat.id in self.admin_date["user"]:
             print(f"用户{message.chat.username}启动外置键盘     {time.ctime()}")
-            markup.add(itembtn7,itembtn8,itembtn9,itembtn10,itembtn11,itembtn12,itembtn13)
+            markup.add(itembtn7, itembtn8, itembtn9, itembtn10, itembtn11, itembtn12, itembtn13)
         bot.send_message(message.chat.id, "外置键盘启动", reply_markup=markup)
 
-#权限管理机制
+
+# 权限管理机制
 class authorityManagement:
     """
     权限管理机制
     """
-    def __init__(self,bot,message):
+
+    def __init__(self, bot, message):
         self.bot = bot
         self.message = message
         self.command = message.text.split(' ', 1)[0][1:]
@@ -121,28 +133,28 @@ class authorityManagement:
         self.__user_add()
 
     def __read_admin(self):
-        with open(file=self.DateFile,mode='r',encoding='utf-8') as date:
+        with open(file=self.DateFile, mode='r', encoding='utf-8') as date:
             self.admin_date = json.load(date)
         self.admin_date
 
     def __admin_show(self):
         if self.command == '管理员列表':
-            date  = str(self.admin_date['Admin'])
-            date = date.strip("[]").replace(",","\n")
-            self.bot.send_message(self.message.chat.id,f"现有管理员id:\n{date}")
+            date = str(self.admin_date['Admin'])
+            date = date.strip("[]").replace(",", "\n")
+            self.bot.send_message(self.message.chat.id, f"现有管理员id:\n{date}")
 
     def __user_show(self):
         if self.command == '用户列表':
-            date  = str(self.admin_date['user'])
-            date = date.strip("[]").replace(",","\n")
-            self.bot.send_message(self.message.chat.id,f"现有用户id:\n{date}")
+            date = str(self.admin_date['user'])
+            date = date.strip("[]").replace(",", "\n")
+            self.bot.send_message(self.message.chat.id, f"现有用户id:\n{date}")
 
     def __user_del(self):
         if self.command == '删除用户':
-            self.bot.send_message(self.message.chat.id,"请输入要删除的用户id")
-            self.bot.register_next_step_handler(self.message,self.__user_del_nextstep)
+            self.bot.send_message(self.message.chat.id, "请输入要删除的用户id")
+            self.bot.register_next_step_handler(self.message, self.__user_del_nextstep)
 
-    def __user_del_nextstep(self,message):
+    def __user_del_nextstep(self, message):
         self.bot.send_chat_action(message.chat.id, 'typing')
         if message.text.isdigit() and int(message.text) in self.admin_date['user']:
             self.admin_date['user'].remove(int(message.text))
@@ -155,63 +167,64 @@ class authorityManagement:
 
     def __admin_del(self):
         if self.command == '删除管理员':
-            self.bot.send_message(self.message.chat.id,"请输入要删除的管理员id")
-            self.bot.register_next_step_handler(self.message,self.__admin_del_nextstep)
+            self.bot.send_message(self.message.chat.id, "请输入要删除的管理员id")
+            self.bot.register_next_step_handler(self.message, self.__admin_del_nextstep)
 
-    def __admin_del_nextstep(self,message):
-       self.bot.send_chat_action(message.chat.id, 'typing')
-       if message.text.isdigit() and int(message.text) in self.admin_date['Admin']:
-           self.admin_date['Admin'].remove(int(message.text))
-           self.__server_date()
-           self.bot.send_message(message.chat.id, "删除成功")
-           print(f"删除管理员{message.text}成功     {time.ctime()}")
-       else:
-           self.bot.send_message(message.chat.id,"删除失败")
-           print(f"删除管理员{message.text}失败     {time.ctime()}")
+    def __admin_del_nextstep(self, message):
+        self.bot.send_chat_action(message.chat.id, 'typing')
+        if message.text.isdigit() and int(message.text) in self.admin_date['Admin']:
+            self.admin_date['Admin'].remove(int(message.text))
+            self.__server_date()
+            self.bot.send_message(message.chat.id, "删除成功")
+            print(f"删除管理员{message.text}成功     {time.ctime()}")
+        else:
+            self.bot.send_message(message.chat.id, "删除失败")
+            print(f"删除管理员{message.text}失败     {time.ctime()}")
 
     def __admin_add(self):
         if self.command == '添加管理员':
-            self.bot.send_message(self.message.chat.id,"请输入要加入的管理员id")
-            self.bot.register_next_step_handler(self.message,self.__admin_add_nextstep)
+            self.bot.send_message(self.message.chat.id, "请输入要加入的管理员id")
+            self.bot.register_next_step_handler(self.message, self.__admin_add_nextstep)
 
     def __user_add(self):
         if self.command == '添加用户':
-            self.bot.send_message(self.message.chat.id,"请输入要加入的用户id")
-            self.bot.register_next_step_handler(self.message,self.__user_add_nextstep)
+            self.bot.send_message(self.message.chat.id, "请输入要加入的用户id")
+            self.bot.register_next_step_handler(self.message, self.__user_add_nextstep)
 
-    def __user_add_nextstep(self,message):
-        self.bot.send_chat_action(message.chat.id,'typing')
+    def __user_add_nextstep(self, message):
+        self.bot.send_chat_action(message.chat.id, 'typing')
         if message.text.isdigit():
             self.admin_date['user'].append(int(message.text))
             self.__server_date()
-            self.bot.send_message(message.chat.id,"添加成功")
+            self.bot.send_message(message.chat.id, "添加成功")
             print(f'添加用户{message.text}      {time.ctime()}')
         else:
-            self.bot.send_message(message.chat.id,"添加失败,您输入的id不是纯数字")
+            self.bot.send_message(message.chat.id, "添加失败,您输入的id不是纯数字")
             print(f'用户{message.text}添加失败      {time.ctime()}')
 
-    def __admin_add_nextstep(self,message):
-       self.bot.send_chat_action(message.chat.id, 'typing')
-       if message.text.isdigit():
-           self.admin_date['Admin'].append(int(message.text))
-           self.__server_date()
-           self.bot.send_message(message.chat.id, "添加成功")
-           print(f'添加管理员{message.text}     {time.ctime()}')
-       else:
-           self.bot.send_message(message.chat.id,"添加失败,您输入的id不是纯数字")
-           print(f'管理员{message.text}添加失败     {time.ctime()}')
+    def __admin_add_nextstep(self, message):
+        self.bot.send_chat_action(message.chat.id, 'typing')
+        if message.text.isdigit():
+            self.admin_date['Admin'].append(int(message.text))
+            self.__server_date()
+            self.bot.send_message(message.chat.id, "添加成功")
+            print(f'添加管理员{message.text}     {time.ctime()}')
+        else:
+            self.bot.send_message(message.chat.id, "添加失败,您输入的id不是纯数字")
+            print(f'管理员{message.text}添加失败     {time.ctime()}')
 
     def __server_date(self):
-        with open(self.DateFile,mode='w',encoding='utf-8') as f:
-            json.dump(self.admin_date,f,ensure_ascii=False)
+        with open(self.DateFile, mode='w', encoding='utf-8') as f:
+            json.dump(self.admin_date, f, ensure_ascii=False)
 
 
 class systeam:
-    def __init__(self,bot,message):
+    def __init__(self, bot, message):
         self.bot = bot
         self.message = message
         self.command = message.text.split(' ', 1)[0][1:]
         self.__git_systeam_cpu()
+
     def __git_systeam_cpu(self):
         bt = bt_api()
         if self.command == '获取系统信息':
@@ -222,23 +235,24 @@ class systeam:
 
 class bt_api:
     def __init__(self):
-       self.Url = URL
-       self.Key = KEY
+        self.Url = URL
+        self.Key = KEY
 
     def bt_systeam(self):
-        systeam_api = System(self.Url,self.Key)
+        systeam_api = System(self.Url, self.Key)
         sys = systeam_api.get_system_total()
         return sys
 
     def bt_web(self):
-        websites = Sites(self.Url,self.Key)
+        websites = Sites(self.Url, self.Key)
         webname = websites.websites()
         print(webname)
         web_index = websites.web_get_index(webname['data'][0]['name'])
         print(web_index)
 
+
 class rehtml():
-    def __init__(self,bot,message):
+    def __init__(self, bot, message):
         self.message = message
         self.bot = bot
         self.id = message.chat.id
@@ -290,10 +304,10 @@ class rehtml():
     def command_user(self):
         if self.command == "改跳转":
             self.web_file()
-            self.bot.send_message(self.message.chat.id,"请输入要修改的网页路径: ")
-            self.bot.register_next_step_handler(self.message,self.__file_html_in)
+            self.bot.send_message(self.message.chat.id, "请输入要修改的网页路径: ")
+            self.bot.register_next_step_handler(self.message, self.__file_html_in)
 
-    def __file_html_in(self,message):
+    def __file_html_in(self, message):
         file = file_html(message)
         lists = file.splicing()
         self.bot.send_chat_action(message.chat.id, 'typing')
@@ -304,11 +318,11 @@ class rehtml():
         else:
             self.bot.send_message(message.chat.id, "没有该网页路径")
 
-    def __url_html_in(self,message):
+    def __url_html_in(self, message):
         self.bot.send_chat_action(message.chat.id, 'typing')
         self.url = message.text
         self.urladd()
-        self.bot.send_message(message.chat.id,"修改成功")
+        self.bot.send_message(message.chat.id, "修改成功")
 
     def urladd(self):
         idn = userNumber_id(str(self.id))
@@ -320,7 +334,7 @@ class rehtml():
         self.__server_html()
 
     def openhtml(self):
-        with open(self.file_html,mode='r',encoding="utf-8") as f:
+        with open(self.file_html, mode='r', encoding="utf-8") as f:
             self.html_content = f.read()
 
     def db4(self):
@@ -348,16 +362,15 @@ class rehtml():
         modified_html_content = soup.encode('utf-8')
         self.html_txt = modified_html_content
 
-    #保存
+    # 保存
     def __server_html(self):
         html = self.html_txt
-        with open(self.file_html,'wb') as file:
+        with open(self.file_html, 'wb') as file:
             file.write(html)
 
 
-
 class meat:
-    def __init__(self,bot,message):
+    def __init__(self, bot, message):
         self.bot = bot
         self.id = message.chat.id
         self.message = message
@@ -367,7 +380,7 @@ class meat:
 
     def command_user(self):
         if self.command == "加像素":
-            web = rehtml(self.bot,self.message)
+            web = rehtml(self.bot, self.message)
             web.web_file()
             self.bot.send_message(self.message.chat.id, "请输入要修改的网页路径: ")
             self.bot.register_next_step_handler(self.message, self.__file_html_in)
@@ -377,27 +390,27 @@ class meat:
             self.json_open()
             date = str(self.intjson['mate'][f'{self.id}'])
             # 不显示前七个字符
-            date = date.strip("{}").replace(",","\n")[18:]
-            self.bot.send_message(self.message.chat.id,date)
+            date = date.strip("{}").replace(",", "\n")[18:]
+            self.bot.send_message(self.message.chat.id, date)
 
-    def __file_html_in(self,message):
+    def __file_html_in(self, message):
         file = file_html(message)
         lists = file.splicing()
         self.bot.send_chat_action(message.chat.id, 'typing')
         self.url_in = message.text
         if self.url_in in lists:
             self.bot.send_message(message.chat.id, "请输入要添加的像素id: ")
-            self.bot.register_next_step_handler(message,self.__url_html_in)
+            self.bot.register_next_step_handler(message, self.__url_html_in)
         else:
             self.bot.send_message(message.chat.id, "没有该网页路径")
 
-    def __url_html_in(self,message):
+    def __url_html_in(self, message):
         self.bot.send_chat_action(message.chat.id, 'typing')
         self.meat = message.text
         # 初始化pixelsList类
         pixels_new = pixelsList()
         # 调用json_Judge_mate方法
-        pixels_new.json_Judge_mate(self.id,self.meat,self.url_in)
+        pixels_new.json_Judge_mate(self.id, self.meat, self.url_in)
         self.urladd()
         self.bot.send_message(message.chat.id, "添加成功")
         print(f"{self.id}添加像素成功     {time.ctime()}")
@@ -412,7 +425,7 @@ class meat:
         self.__server_html()
 
     def openhtml(self):
-        with open(self.file_html,mode='r',encoding="utf-8") as f:
+        with open(self.file_html, mode='r', encoding="utf-8") as f:
             self.html_content = f.read()
 
     def bs4(self):
@@ -477,28 +490,29 @@ class meat:
         modified_html_content = soup.encode('utf-8')
         self.html_txt = modified_html_content
 
-
     def json_open(self):
         self.DateFile = DateFile
-        with open(self.DateFile,mode='r',encoding='utf-8') as f:
+        with open(self.DateFile, mode='r', encoding='utf-8') as f:
             self.intjson = json.load(f)
 
     def json_save(self):
         self.json_open()
         self.intjson["mate"].append(self.meat)
-        with open(self.DateFile,mode='w',encoding='utf-8') as f:
-            json.dump(self.intjson,f,ensure_ascii=False)
+        with open(self.DateFile, mode='w', encoding='utf-8') as f:
+            json.dump(self.intjson, f, ensure_ascii=False)
 
     def __server_html(self):
         html = self.html_txt
-        with open(self.file_html,'wb') as file:
+        with open(self.file_html, 'wb') as file:
             file.write(html)
+
 
 class file_html:
     """
     用于获取网页路径
     """
-    def __init__(self,message):
+
+    def __init__(self, message):
         self.id = message.chat.id
         idn = userNumber_id(str(self.id))
         dictionary = idn.id_date
@@ -506,6 +520,7 @@ class file_html:
         self.path = f"{File_HTEML}/{self.val}"
         self.list_immediate_subdirectories()
         self.file_splicing()
+
     def list_immediate_subdirectories(sefl):
         immediate_subdirectories = []
         entries = os.listdir(sefl.path)
@@ -533,17 +548,21 @@ class file_html:
         for list in self.file_lists:
             html_name = str(self.html_file_names[i])[:-5]
             file_list.append(f"{list}/{html_name}")
-            i+=1
+            i += 1
         return file_list
+
+
 class template_html:
     """
     用于获取网页模板路径
     """
-    def __init__(self,message):
+
+    def __init__(self, message):
         self.id = message.chat.id
         self.path = f"{Template_HTML}"
         self.list_immediate_subdirectories()
         self.file_splicing()
+
     def list_immediate_subdirectories(sefl):
         immediate_subdirectories = []
         entries = os.listdir(sefl.path)
@@ -571,8 +590,9 @@ class template_html:
         for list in self.file_lists:
             html_name = str(self.html_file_names[i])[:-5]
             file_list.append(f"{list}/{html_name}")
-            i+=1
+            i += 1
         return file_list
+
 
 class userpage:
     """
@@ -628,7 +648,8 @@ class webModules:
     # 网页模板：
     # 每一个普通用户都可以复制一个落地页模板到自己的路径下进行操作（用于保证落地页内容相同但其中的跳转和像素不同）
     '''
-    def __init__(self,bot,message):
+
+    def __init__(self, bot, message):
         self.bot = bot
         self.id = message.chat.id
         self.message = message
@@ -640,6 +661,7 @@ class webModules:
         self.val = chr(dictionary[f'{str(self.id)}'])
         self.command_user()
         self.command_del()
+
     def command_del(self):
         if self.command == '删除网页':
             destPath = self.File_HTEML
@@ -647,7 +669,7 @@ class webModules:
             list = str(destDirList).strip('[]').replace("'", "").replace(",", "\n")
             self.bot.send_message(self.message.chat.id, f"已有模板名称:\n {list}")
             self.bot.send_message(self.message.chat.id, "请输入要删除的模板名称: ")
-            self.bot.register_next_step_handler(self.message,self.del_template)
+            self.bot.register_next_step_handler(self.message, self.del_template)
 
     def command_user(self):
         if self.command == '复制网页模板':
@@ -656,14 +678,14 @@ class webModules:
             list = str(destDirList).strip('[]').replace("'", "").replace(",", "\n")
             self.bot.send_message(self.message.chat.id, f"已有模板名称:\n {list}")
             self.bot.send_message(self.message.chat.id, "请输入要复制的模板名称: ")
-            self.bot.register_next_step_handler(self.message,self.copy_template)
+            self.bot.register_next_step_handler(self.message, self.copy_template)
 
     def del_template(self, message):
         self.bot.send_chat_action(message.chat.id, 'typing')
         self.cmd = message.text
         self.deleteWebTemplate()
 
-    def copy_template(self,message):
+    def copy_template(self, message):
         self.bot.send_chat_action(message.chat.id, 'typing')
         self.cmd = message.text
         self.copyFiles()
@@ -675,7 +697,7 @@ class webModules:
             if self.cmd in destDirList:
                 copyResult = shutil.copytree(self.path, f"{destPath}/{self.val}/{self.cmd}")
                 print(f'{copyResult}，文件已成功创建    {time.ctime()}')
-                shutil.move(f"{destPath}/{self.val}/{self.cmd}/{self.cmd}",f"{destPath}/")
+                shutil.move(f"{destPath}/{self.val}/{self.cmd}/{self.cmd}", f"{destPath}/")
                 shutil.rmtree(f"{destPath}/{self.val}/{self.cmd}")
                 shutil.move(f"{destPath}/{self.cmd}", f"{destPath}/{self.val}")
                 self.bot.send_message(self.message.chat.id, "模板创建成功")
@@ -684,12 +706,14 @@ class webModules:
                 print(f'没有该模板文件    {time.ctime()}')
         except Exception as e:
             print(f'创建文件夹 失败 ，{e} {time.ctime()}')
-            self.bot.send_message(self.message.chat.id, "模板创建失败，请检查路径是否正确(当前版本下：若网页路径已存在，也会创建失败可以使用“*查看网页路径”查看)")
+            self.bot.send_message(self.message.chat.id,
+                                  "模板创建失败，请检查路径是否正确(当前版本下：若网页路径已存在，也会创建失败可以使用“*查看网页路径”查看)")
+
     def deleteWebTemplate(self):  # 删除网页模板
         try:
-            destPath = f'{self.File_HTEML}/{self.val}'  #工作目录
+            destPath = f'{self.File_HTEML}/{self.val}'  # 工作目录
             webTamplate_list = os.listdir(f'{destPath}')  # 找到用户所有的模板 导出为列表
-            if f'{self.cmd}' in webTamplate_list:    #判断删除的目标是否在工作列表中
+            if f'{self.cmd}' in webTamplate_list:  # 判断删除的目标是否在工作列表中
                 shutil.rmtree(f'{destPath}/{self.cmd}')
                 self.bot.send_message(self.message.chat.id, "模板删除成功")
                 print(f'删除网页成功   {time.ctime()}')
@@ -698,11 +722,13 @@ class webModules:
         except Exception as e:
             print(f'模板文件夹删除失败 ，{e} {time.ctime()}')
 
+
 class userNumber_id:
     """
     用户id对应字符
     """
-    def __init__(self,userid):
+
+    def __init__(self, userid):
         self.id_file = IDFile
         self.DateFile = DateFile
         self.userid = userid
@@ -712,13 +738,15 @@ class userNumber_id:
         self.id_max = max(self.index)
         self.is_ena_in_id()
         self.server_id()
+
     def read_admin(self):
         with open(file=self.DateFile, mode='r', encoding='utf-8') as date:
             self.admin_date = json.load(date)
         self.admin_date
+
     def open_id(self):
         with open(file=self.id_file, mode='r', encoding='utf-8') as date:
-                self.id_date = json.load(date)
+            self.id_date = json.load(date)
 
     def is_ena_in_id(self):
         if self.userid in str(self.admin_date['user']):
@@ -732,23 +760,25 @@ class userNumber_id:
         if self.userid in self.id_date.keys():
             print(f"用户id:{self.userid}存在     {time.ctime()}")
         else:
-            self.id_date.update({self.userid:self.id_max + 1})
+            self.id_date.update({self.userid: self.id_max + 1})
             print(f"用户对应id已更新    {time.ctime()}")
+
     def server_id(self):
         with open(file=self.id_file, mode='w', encoding='utf-8') as date:
             date.write(json.dumps(self.id_date, ensure_ascii=False))
+
 
 class pixelsList:
     '''
     创建像素列表，每个用户只能输出自己的像素
     '''
+
     def __init__(self):
         self.id_file = IDFile
         self.DateFile = DateFile
         self.intjson = {}
-        self.pixelID='0'
-        self.pixelContent='0'
-
+        self.pixelID = '0'
+        self.pixelContent = '0'
 
     def json_open(self):  # 读取user中的id字典
         self.DateFile = DateFile
@@ -756,7 +786,7 @@ class pixelsList:
             self.intjson = json.load(f)
             print(f'json打印：{self.intjson} \n    {time.ctime()}')
 
-    def server_id(self,writed_Data):    # 将内存数据写入json
+    def server_id(self, writed_Data):  # 将内存数据写入json
         with open(file=self.DateFile, mode='w', encoding='utf-8') as date:
             date.write(json.dumps(writed_Data, ensure_ascii=False))
 
@@ -775,20 +805,110 @@ class pixelsList:
         # 如果判断username没在mate里，就建立新的“userid”字典，并添加当前所要添加的像素id
         else:
             print(f'用户id不存在，创建id表   {time.ctime()}')
-            self.intjson['mate'][userId] = {f"{page_url}":{}}
-            self.intjson['mate'][userId][page_url] = {"0":""}
+            self.intjson['mate'][userId] = {f"{page_url}": {}}
+            self.intjson['mate'][userId][page_url] = {"0": ""}
             self.pixelID = str(int(max(self.intjson['mate'][userId][page_url].keys())) + 1)
             self.intjson['mate'][userId][page_url].update({self.pixelID: pixelContent})
             self.server_id(self.intjson)
             print(self.intjson)
             self.server_id(self.intjson)
 
-    # 用于删除用户指定像素，通过像素id来删除
+    # 用于删除用户指定网页中的像素
     def del_pix(self, userId, pixelID):
         self.json_open()
         if userId in self.intjson['mate']:
             del self.intjson['mate'][userId][pixelID]
             print(f'用户已删除 {pixelID}像素   {time.ctime()}')
+
+
+class html_copy:
+    '''
+    复制同一个家目录下的网页文件
+    '''
+
+    def __init__(self, bot, message):
+        self.File_HTEML = File_HTEML
+        self.bot = bot
+        self.id = message.chat.id
+        self.message = message
+        self.command = message.text.split(' ', 1)[0][1:]
+        idn = userNumber_id(str(self.id))
+        dictionary = idn.id_date
+        self.val = chr(dictionary[f'{str(self.id)}'])
+        self.command_user()
+
+    # 复制用户目录下的网址
+    def command_user(self):
+        if self.command == '复制用户网页':
+            destPath = self.File_HTEML
+            destDirList = os.listdir(f'{destPath}/{self.val}')  # 要复制路径的 文件夹·文件
+            print("destDirList:", len(destDirList))
+            if len(destDirList) == 0:
+                self.bot.send_message(self.message.chat.id ,"用户家目录不存在")
+            else:
+                list = str(destDirList).strip('[]').replace("'", "").replace(",", "\n")
+                self.bot.send_message(self.message.chat.id, f"已有落地页路径名称 :\n {list}")
+                self.bot.send_message(self.message.chat.id, "请输入要复制的落地页路径 :如us ")
+                self.bot.register_next_step_handler(self.message, self.copy_template)
+
+    def del_template(self, message):
+        self.bot.send_chat_action(message.chat.id, 'typing')
+        self.cmd = message.text
+        self.deleteWebTemplate()
+
+    def copy_template(self, message):
+        self.bot.send_chat_action(message.chat.id, 'typing')
+        self.cmd = message.text
+        self.copyFiles()
+
+    def copyFiles(self):
+        destPath = self.File_HTEML
+        # 将目标路径指定到当前用户文件夹内
+        destDirList = (f'{destPath}/{self.val}')
+        if self.cmd in destDirList:
+            # 拼接用户输入的路径，该路径指定的是需要被复制的文件本身
+            source_file = f"{destPath}/{self.val}/{self.cmd}/eng.html"
+            # 拼接用户输入的路径，该路径指定的是需要被复制的文件的文件夹
+            source_filepath = f"{destPath}/{self.val}/{self.cmd}"
+            # 终端输出目标文件夹，验证是否获取到用户指定路径
+            print(f'source_filepath {source_filepath}')
+
+            # 让用户输入新文件名称
+            self.bot.send_message(self.message.chat.id, "请输入新的落地页名称 :如eng1 ")
+            # 将target_directory目标文件路径与source_filepath传入新参数以便do——copy使用
+            self.source_filepath1 = source_filepath
+            self.source_file1 = source_file
+            # 获取用户新输入的值，也就是获取新落地页的名称，然后执行do_copy
+            self.bot.register_next_step_handler(self.message, self.do_copy)
+        else:
+            self.bot.send_message(self.message.chat.id, "没有该路径")
+            print(f'没有该路径    {time.ctime()}')
+
+    def do_copy(self, message):
+        self.bot.send_chat_action(message.chat.id, 'typing')
+        # 获取用户输入的新落地页名称
+        self.cmd = message.text
+        # 将用户输入的新名称指定到新文件
+        target_file_name = f'{self.cmd}.html'
+        # 拼接目标文件完整路径，即目标位置，以及文件名称
+        target_file_path = os.path.join(self.source_filepath1, target_file_name)
+        try:
+            # 执行复制功能
+            shutil.copy(self.source_file1, target_file_path)
+            print(f"文件成功复制至{target_file_path}")
+            self.bot.send_message(self.message.chat.id, "成功复制 ")
+        except FileNotFoundError:
+            print(f"目标路径{self.source_filepath1}不存在.")
+            self.bot.send_message(self.message.chat.id,"文件创建失败，目标路径{self.source_filepath1}不存在.")
+        except PermissionError:
+            print(f"Error: 权限无法访问{target_file_path}.")
+            self.bot.send_message(self.message.chat.id,"权限无法访问，请确认路径是否正确")
+        except Exception as e:
+            print(f"未知错误: {e}")
+            self.bot.send_message(self.message.chat.id,"未知错误，请检查指令是否正确")
+        except Exception as e:
+            print(f'创建文件夹 失败 ，{e} {time.ctime()}')
+            self.bot.send_message(self.message.chat.id,"文件创建失败，请检查路径是否正确(当前版本下：若网页路径已存在，也会创建失败可以使用“*查看网页路径”查看)")
 
 
 if __name__ == '__main__':
