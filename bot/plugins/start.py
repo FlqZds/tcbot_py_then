@@ -98,18 +98,19 @@ class button:
         itembtn6 = types.KeyboardButton("#删除用户")
         itembtn7 = types.KeyboardButton("*查看模板路径")
         itembtn8 = types.KeyboardButton("*复制网页模板")
-        itembtn9 = types.KeyboardButton("*删除网页")
-        itembtn10 = types.KeyboardButton("*查看落地页网址")
-        itembtn11 = types.KeyboardButton("*改跳转")
-        itembtn12 = types.KeyboardButton("*加像素")
-        itembtn13 = types.KeyboardButton("*像素列表")
+        itembtn9 = types.KeyboardButton("*复制用户网页")
+        itembtn10 = types.KeyboardButton("*删除网页")
+        itembtn11 = types.KeyboardButton("*查看落地页网址")
+        itembtn12 = types.KeyboardButton("*改跳转")
+        itembtn13 = types.KeyboardButton("*加像素")
+        itembtn14 = types.KeyboardButton("*像素列表")
         if message.chat.id in self.admin_date["Admin"]:
             print(f"管理员{message.chat.username}启动外置键盘     {time.ctime()}")
             markup.add(itembtn1, itembtn2, itembtn3, itembtn4, itembtn5, itembtn6, itembtn7, itembtn8, itembtn9,
-                       itembtn10, itembtn11, itembtn12, itembtn13)
+                       itembtn10, itembtn11, itembtn12, itembtn13,itembtn14)
         elif message.chat.id in self.admin_date["user"]:
             print(f"用户{message.chat.username}启动外置键盘     {time.ctime()}")
-            markup.add(itembtn7, itembtn8, itembtn9, itembtn10, itembtn11, itembtn12, itembtn13)
+            markup.add(itembtn7, itembtn8, itembtn9, itembtn10, itembtn11, itembtn12, itembtn13,itembtn14)
         bot.send_message(message.chat.id, "外置键盘启动", reply_markup=markup)
 
 
@@ -519,7 +520,6 @@ class file_html:
         self.val = chr(dictionary[f'{str(self.id)}'])
         self.path = f"{File_HTEML}/{self.val}"
         self.list_immediate_subdirectories()
-        self.file_splicing()
 
     def list_immediate_subdirectories(sefl):
         immediate_subdirectories = []
@@ -530,25 +530,28 @@ class file_html:
                 immediate_subdirectories.append(entry)
         sefl.file_lists = immediate_subdirectories
 
-    def file_splicing(self):
+    def file_splicing(self,file_list):
         html_files = []
-        for file_list in self.file_lists:
-            file = f"{self.path}/{file_list}"
-            entries = os.listdir(file)
-            for entry in entries:
-                full_path = os.path.join(file, entry)
-                # 检查这个路径是否是一个文件
-                if os.path.isfile(full_path) and full_path.endswith('.html'):
-                    html_files.append(full_path)
+        file = f"{self.path}/{file_list}"
+        entries = os.listdir(file)
+        for entry in entries:
+            full_path = os.path.join(file, entry)
+            # 检查这个路径是否是一个文件
+            if os.path.isfile(full_path) and full_path.endswith('.html'):
+                html_files.append(full_path)
         self.html_file_names = [os.path.basename(path) for path in html_files]
 
     def splicing(self):
         i = 0
         file_list = []
+        # 循环遍历家目录获取其中所有.html文件
         for list in self.file_lists:
-            html_name = str(self.html_file_names[i])[:-5]
-            file_list.append(f"{list}/{html_name}")
-            i += 1
+            self.file_splicing(list)
+            i = 0
+            while i < len(self.html_file_names):
+                html_name = str(self.html_file_names[i])[:-5]
+                file_list.append(f"{list}/{html_name}")
+                i += 1
         return file_list
 
 
@@ -864,7 +867,7 @@ class html_copy:
     def copyFiles(self):
         destPath = self.File_HTEML
         # 将目标路径指定到当前用户文件夹内
-        destDirList = (f'{destPath}/{self.val}')
+        destDirList = os.listdir(f'{destPath}/{self.val}')
         if self.cmd in destDirList:
             # 拼接用户输入的路径，该路径指定的是需要被复制的文件本身
             source_file = f"{destPath}/{self.val}/{self.cmd}/eng.html"
