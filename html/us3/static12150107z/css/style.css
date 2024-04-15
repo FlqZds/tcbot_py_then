@@ -1,0 +1,334 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+a{
+    text-decoration: none;
+    color: #fff;
+}
+img{
+    max-width: 100%;
+}
+ul,li{
+    list-style: none;
+}
+section{
+    width: 100%;
+    max-width: 1320px;
+    margin: auto;
+}
+.zdsf{
+    display: flex;
+    justify-content: space-between;
+}
+.z-link{
+    background-color: #02d8c4;
+    border-radius: 30px!important;
+    font-size: 15px!important;
+    width: 280px;
+    line-height: 55px;
+    text-align: center;
+    display: block;
+    font-weight: bold;
+    margin-top: 8%;
+    transition: all .3s;
+}
+.z-1{
+    background: url(../picture/z20231211-2.png);
+    text-align: center;
+    color: #fff;
+    padding: 120px 4% 4%;
+}
+.z-1 h2{
+    font-size: 33px;
+    margin-top: 10px;
+}
+.z-1 h1{
+    font-size: 4rem;
+    margin: 4rem 0;
+}
+.z-1 span{
+    color: #02d8c4;
+}
+.z-1 h1 p{
+    font-size: 36px;
+    font-weight: lighter;
+}
+.z-1 ul li{
+    width: 17%;
+    margin: auto;
+}
+.z-1-p{
+    color: #02d8c4;
+    font-family: Poppins-Medium;
+    text-align: center;
+    margin-top: 25px;
+    font-size: 17px;
+}
+.z-2-l{
+    width: 50%;
+    margin-top: 3%;
+    padding-right: 8%;
+    padding-left: 10%;
+    font-size: 18px;
+}
+.z-2-r{
+    width: 45%;
+}
+.z-3{
+    background-color: #f6f6f6;
+    text-align: center;
+    padding: 2%;
+}
+.z-3 h2{
+    font-size: 60px;
+}
+.z-3 h2 span{
+    color: #02d8c4;
+}
+.z-3 ul{
+    margin: 1.5rem auto;
+}
+.z-3 ul li{
+    background-color: #fff;
+    margin: 0 2%;
+    padding: 0 2%;
+    width: 360px;
+    height: 230px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.z-3 ul li:nth-child(2){
+    background-color: #02d8c4;
+    color: #fff;
+}
+.z-3 ul li img{
+    width: 70px;
+    text-align: center;
+}
+.z-3 ul li p{
+    font-size: 23px;
+    margin-top: 20px;
+    font-weight: bold;
+}
+.z-4 .zdsf{
+    align-items: center;
+}
+.z-4 .z-4-1{
+    flex-direction: row-reverse;
+}
+.z-4 img{
+    width: 675px;
+    height: 100%;
+}
+.z-4 .z-4-txt{
+    margin-left: 5%;
+    padding-right: 12%;
+}
+.z-4 .z-4-1 .z-4-txt{
+    margin-left: 5%;
+    padding-left: 12%;
+    padding-right: 5%;
+}
+.z-4-txt h2{
+    font-size: 32px;
+}
+.z-4-txt p{
+    font-size: 18px;
+    margin: 15px 20px 0 0;
+}
+.z-5{
+    background-image: url(../picture/z20231211-7.png);
+    padding: 76px 8%;
+    color: #fff;
+    text-align: center;
+}
+.z-5 a{
+    margin: 0 auto;
+}
+.z-6{
+    padding: 4% 8%;
+    text-align: center;
+}
+.z-6 p{
+    margin-top: 10px;
+    font-weight: lighter;
+}
+
+.top{
+    position: fixed;
+    top: 0;
+    left: 0;
+    text-align: center;
+    background-color: #fff;
+    color: #000;
+    width: 100%;
+    font-size: 20px;
+    font-weight: bold;
+    transition: all 1s;
+}
+
+.countdown{
+    margin: 20px auto;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    font-size: 25px;
+    max-width: 1000px;
+}
+.countdown a{
+    border-radius: 30px;
+    background: repeat padding-box border-box 0% 0% / auto auto scroll #02d8c4;
+    color: #fff;
+    padding: 10px 20px;
+    font-size: 16px;
+}
+.elementor-countdown-wrapper {
+    flex-direction: row;
+    display: flex;
+    justify-content: center;
+    color: #02d8c4;
+}
+.elementor-countdown-wrapper .coin{
+    color: #02d8c4;
+    font-weight: lighter;
+    width: 15px;
+}
+.elementor-countdown-item {
+    padding: 0px 0;
+    text-align: center;
+    flex-basis: 0;
+    flex-grow: 1;
+    width: 30px;
+}
+.elementor-countdown-item:last-child{
+    animation: dimension 1s ease-out infinite;
+}
+.elementor-countdown-digits {
+    font-size: 16px;
+    background-color: #02d8c4;
+    border-radius: 4px;
+    padding: 4px;
+    color: #fff;
+}
+
+.elementor-countdown-label {
+    font-size: 14px;
+    font-weight: lighter;
+    display: block;
+}
+@keyframes dimension {
+    0% {
+        -webkit-transform: scale3d(1, 1, 1);
+        transform: scale3d(1, 1, 1);
+    }
+    50% {
+        -webkit-transform: scale3d(1.1, 1.1, 1.1);
+        transform: scale3d(1.1, 1.1, 1.1);
+    }
+    100% {
+        -webkit-transform: scale3d(1, 1, 1);
+        transform: scale3d(1, 1, 1);
+    }
+}
+
+
+/* new1215 */
+.z-5646 h2{
+    text-align: center;
+    padding: 40px 0 0;
+    color: #02d8c4;
+    font-size: 43px;
+}
+@media only screen and (max-width: 678px){
+    .z-1{
+        padding: 60px 4% 6%;
+    }
+    .z-1 h1{
+        font-size: 2.3rem;
+        margin: 2rem 0;
+    }
+    .z-1 h1 p{
+        font-size: 1.3rem;
+    }
+    .z-1 ul li{
+        width: 96%;
+        font-size: .9rem;
+    }
+    .z-1 ul li img{
+        width: 35%;
+        margin-bottom: 10px;
+    }
+    .z-1-p{
+        font-size: 12px;
+    }
+    .z-2{
+        flex-wrap: wrap;
+    }
+    .z-2-r{
+        width: 100%;
+    }
+    .z-2-l{
+        width: 100%;
+        margin-top: 5%;
+        padding-right: 3%;
+        padding-left: 3%;
+    }
+    .z-2-l a{
+        margin: 4% auto;
+    }
+    .z-3 h2{
+        font-size: 32px;
+    }
+    .z-3 ul{
+        flex-direction: column;
+    }
+    .z-3 ul li{
+        width: 96%;
+    }
+    .z-4 .zdsf{
+        flex-direction: column;
+    }
+    .z-4 .z-4-txt{
+        margin-left: 5%;
+        padding: 5% 0;
+    }
+    .z-4 .z-4-1 .z-4-txt{
+        padding-left:0;
+    }
+    .z-4-txt h2{
+        font-size: 25px;
+    }
+    .z-sj{
+        display: none;
+    }
+    .countdown{
+        width: 98%;
+        margin: 0 auto;
+    }
+    .countdown p{
+        font-size: 11px;
+    }
+    .countdown a{
+        font-size: 8px;
+        padding: 5px ;
+    }
+    .elementor-countdown-item{
+        width: 25px;
+    }
+    .elementor-countdown-wrapper .coin{
+        display: none;
+    }
+    .elementor-countdown-digits{
+        font-size: 10px;
+    }
+    .elementor-countdown-label{
+        font-size: 8px;
+    }
+    .z-5646 h2 {
+        font-size: 24px;
+    }
+}

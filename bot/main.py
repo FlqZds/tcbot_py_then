@@ -71,12 +71,12 @@ def callback_handler(call):
         if hasattr(plugin,'handler_back'):
             plugin.handler_back(bot,call)
 
-
-#运行机器人
-# try:
-print(f"\033[34m机器人运行成功  {time.ctime()} \033[m")
-print(f"目前可使用命令{commands}")
-bot.polling()
-# except Exception as e:
-#     print(f"\033[31m出现致命错误 {e}            {time.ctime()}\033[m")
-#     bot.polling()
+while True:
+    #运行机器人
+    try:
+        print(f"\033[34m机器人运行成功  {time.ctime()} \033[m")
+        print(f"目前可使用命令{commands}")
+        bot.polling()
+    except Exception as e:
+         print(f"\033[31m出现致命错误 {e}            {time.ctime()}\033[m")
+         continue
