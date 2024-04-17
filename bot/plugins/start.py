@@ -944,7 +944,7 @@ class changeWeb:
         self.userfile = f'{File_HTEML}/{self.val}/{command}'
         self.clear_DirContent(self.userfile)
         self.bot.send_message(self.id, '你想切换的网页模板:')
-        self.bot.register_next_step_handler(message,self.next_step_clear())
+        self.bot.register_next_step_handler(message,self.next_copy_web)
 
 
     def next_copy_web(self,message):
@@ -960,24 +960,15 @@ class changeWeb:
 
 
     def clear_DirContent(self,destPath):    #清空目录中的内容
-        try:
-            file_List=os.listdir(destPath)
-            shutil.rmtree(destPath)        #要删除的目标文件集
-            os.mkdir(destPath)
-        except:
-            print(f'清空目录失败       {os.times()}')
+        shutil.rmtree(destPath)        #要删除的目标文件集
 
     def copy_Module(self,WebModule_in,WebModule_out):   #复制的网页模板
         try:
-            srcPath = WebModule_in
-
-            descPath = WebModule_out
-            shutil.copytree(srcPath, descPath)
-        except:
-            print(f'复制模板失败      {os.times()}')
+            # 复制模板
+            shutil.copytree(WebModule_in, WebModule_out)
+        except Exception as e:
+            print(f'复制模板失败{e}      {os.times()}')
 
 
 if __name__ == '__main__':
-    a=changeWeb(bot,message)
-    a.clear_DirContent(f'{self.file_html}/B/jp')
     pass
