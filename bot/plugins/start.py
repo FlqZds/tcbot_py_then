@@ -392,8 +392,8 @@ class meat:
             if date is None:
                 self.bot.send_message(self.message.chat.id, '像素列表为空')
             else:
-                date = date.strip("{}").replace(",", "\n")[18:]
-                self.bot.send_message(self.message.chat.id, date)
+                date = date.strip("{}").replace(",", "\n").replace("'", "").replace("{", "").replace("}", "").replace("0:","")
+                self.bot.send_message(self.message.chat.id,f"目前已有像素:\n{date}")
 
     def __file_html_in(self, message):
         file = file_html(message)
@@ -816,6 +816,8 @@ class pixelsList:
         # userId在，就更新 该userId的值，否则建立新的userid字典
         self.json_open()
         user_id = str(userId)
+        if user_id not in self.intjson['mate']:
+            self.intjson['mate'][user_id] = {}
         page_urls = self.intjson['mate'][user_id].keys()
         user_ids = self.intjson['mate'].keys()
         if user_id in user_ids and page_url in page_urls:
@@ -828,8 +830,7 @@ class pixelsList:
         # 如果判断username没在mate里，就建立新的“userid”字典，并添加当前所要添加的像素id
         else:
             print(f'用户id不存在，创建id表   {time.ctime()}')
-            if user_id in user_ids:
-                self.intjson['mate'][user_id] = {f"{page_url}": {}}
+            self.intjson['mate'][user_id].update({f"{page_url}": {}})
             self.intjson['mate'][user_id][page_url] = {"0": ""}
             self.pixelID = str(int(max(self.intjson['mate'][user_id][page_url].keys())) + 1)
             self.intjson['mate'][user_id][page_url].update({self.pixelID: pixelContent})
