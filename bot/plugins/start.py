@@ -939,7 +939,7 @@ class changeWeb:
                 self.bot.send_message(self.id,'您要固定的域名:')
                 self.bot.register_next_step_handler(self.message,self.next_step_clear)
             else:
-                self.bot.send_message(self.id,f'您当前域名为空，请尝试复制网页模板')
+                self.bot.send_message(self)
 
     def next_step_clear(self,message):
         self.bot.send_chat_action(message.chat.id, 'typing')
