@@ -927,13 +927,19 @@ class changeWeb:
         self.command = message.text.split(' ', 1)[0][1:]
         self.path = Template_HTML
         self.file_html = File_HTEML
-        self.userCommand()
+        self.userCommand()      #入口
 
 
     def userCommand(self):
         if self.command == '模板切换':
-            self.bot.send_message(self.id,'你要固定的域名:')
-            self.bot.register_next_step_handler(self.message,self.next_step_clear)
+            self.area_list=self.list_user_html()
+            output = str(self.area_list).strip('[]').replace("'",'').replace(',','\n')
+            if output != "":
+                self.bot.send_message(self.id, f'您现有域名:\n{output}')
+                self.bot.send_message(self.id,'您要固定的域名:')
+                self.bot.register_next_step_handler(self.message,self.next_step_clear)
+            else:
+                self.bot.send_message(self.id,f'您当前域名为空，请尝试复制网页模板')
 
     def next_step_clear(self,message):
         self.bot.send_chat_action(message.chat.id, 'typing')
@@ -942,9 +948,15 @@ class changeWeb:
         dictionary = idn.id_date
         self.val = chr(dictionary[f'{str(self.id)}'])
         self.userfile = f'{File_HTEML}/{self.val}/{command}'
-        self.clear_DirContent(self.userfile)
-        self.bot.send_message(self.id, '你想切换的网页模板:')
-        self.bot.register_next_step_handler(message,self.next_copy_web)
+        destDirList = os.listdir(Template_HTML)  # 要复制路径的 文件夹·文件
+        self.list = str(destDirList).strip('[]').replace("'", "").replace(",", "\n")
+        if command in self.area_list:
+            self.clear_DirContent(self.userfile)
+            self.bot.send_message(self.message.chat.id, f"已有模板名称:\n {self.list}")
+            self.bot.send_message(self.id, '你想切换的网页模板:')
+            self.bot.register_next_step_handler(message,self.next_copy_web)
+        else:
+            self.bot.send_message(self.id,'您要固定的域名不存在')
 
 
     def next_copy_web(self,message):
@@ -952,10 +964,22 @@ class changeWeb:
         command = message.text
         idn = userNumber_id(str(self.id))
         dictionary = idn.id_date
+        self.val = chr(dictionary[f'{str(self.id)}'])       # 拿到userId对应的像素字母
+        if  command in self.list:
+            self.htmlFile=f'{Template_HTML}/{command}'
+            self.copy_Module(self.htmlFile,self.userfile)
+            self.bot.send_message(self.id,'切换成功')
+        else:
+            self.bot.send_message(self.id,'无您所需要的模板')
+
+
+    def list_user_html(self):   # 列出当前用户模板的文件夹
+        idn = userNumber_id(str(self.id))
+        dictionary = idn.id_date
         self.val = chr(dictionary[f'{str(self.id)}'])
-        self.htmlFile=f'{Template_HTML}/{command}'
-        self.copy_Module(self.htmlFile,self.userfile)
-        self.bot.send_message(self.id,'切换成功')
+        basket=os.listdir(f'{File_HTEML}/{self.val}')
+        return basket
+
 
 
 
