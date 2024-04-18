@@ -795,24 +795,27 @@ class pixelsList:
         # 判断是否在mate里，在就执行加载像素
         # userId在，就更新 该userId的值，否则建立新的userid字典
         self.json_open()
-        if userId in self.intjson['mate'] and page_url in self.intjson['mate'][userId]:
-            # username其实是mate
+        user_id = str(userId)
+        page_urls = self.intjson['mate'][user_id].keys()
+        user_ids = self.intjson['mate'].keys()
+        if user_id in user_ids and page_url in page_urls:
             # 获取userid里的pixelid的最大值，然后+1
-            self.pixelID = str(int(max(self.intjson['mate'][userId][page_url].keys())) + 1)
+            self.pixelID = str(int(max(self.intjson['mate'][user_id][page_url].keys())) + 1)
             # 获取用户输入的像素id
-            self.intjson['mate'][userId][page_url].update({self.pixelID: pixelContent})
+            self.intjson['mate'][user_id][page_url].update({self.pixelID: pixelContent})
             # 写入数据
             self.server_id(self.intjson)
         # 如果判断username没在mate里，就建立新的“userid”字典，并添加当前所要添加的像素id
         else:
             print(f'用户id不存在，创建id表   {time.ctime()}')
-            self.intjson['mate'][userId] = {f"{page_url}": {}}
-            self.intjson['mate'][userId][page_url] = {"0": ""}
-            self.pixelID = str(int(max(self.intjson['mate'][userId][page_url].keys())) + 1)
-            self.intjson['mate'][userId][page_url].update({self.pixelID: pixelContent})
+            self.intjson['mate'][user_id] = {f"{page_url}": {}}
+            self.intjson['mate'][user_id][page_url] = {"0": ""}
+            self.pixelID = str(int(max(self.intjson['mate'][user_id][page_url].keys())) + 1)
+            self.intjson['mate'][user_id][page_url].update({self.pixelID: pixelContent})
             self.server_id(self.intjson)
             print(self.intjson)
             self.server_id(self.intjson)
+            print(self.intjson)
 
     # 用于删除用户指定网页中的像素
     def del_pix(self, userId, pixelID):
