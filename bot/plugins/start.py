@@ -674,7 +674,7 @@ class webModules:
     def command_del(self):
         if self.command == '删除网页':
             destPath = self.File_HTEML
-            destDirList = os.listdir(self.path)  # 要复制路径的 文件夹·文件
+            destDirList = os.listdir(f'{File_HTEML}/{self.val}')  # 要复制路径的 文件夹·文件
             list = str(destDirList).strip('[]').replace("'", "").replace(",", "\n")
             self.bot.send_message(self.message.chat.id, f"已有模板名称:\n {list}")
             self.bot.send_message(self.message.chat.id, "请输入要删除的模板名称: ")
@@ -729,6 +729,7 @@ class webModules:
                 print(f'删除网页和所属像素成功   {time.ctime()}')
             else:
                 print(f'未找到相关模板目录，请确认删除command指令')
+                self.bot.send_message(self.message.chat.id, "未找到相关模板，请确认删除command指令")
         except Exception as e:
             print(f'模板文件夹删除失败 ，{e} {time.ctime()}')
 
