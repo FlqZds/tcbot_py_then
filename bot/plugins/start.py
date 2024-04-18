@@ -63,6 +63,7 @@ class StartPlugin(PluginInterface):
                 meatadd = meat(bot, message)
                 copy_htmls = webModules(bot, message)
                 copy_enghtml = html_copy(bot, message)
+                chang = changeWeb(bot,message)
         elif date == 'user':
             # 用户可使用命令
             if message.text.startswith('*'):
@@ -70,6 +71,7 @@ class StartPlugin(PluginInterface):
                 meatadd = meat(bot, message)
                 copy_htmls = webModules(bot, message)
                 copy_enghtml = html_copy(bot, message)
+                chang = changeWeb(bot, message)
         else:
             bot.send_message(message.chat.id, "您没有该权限")
 
@@ -103,14 +105,16 @@ class button:
         itembtn12 = types.KeyboardButton("*改跳转")
         itembtn13 = types.KeyboardButton("*加像素")
         itembtn14 = types.KeyboardButton("*像素列表")
+        itembtn15 = types.KeyboardButton("*模板切换")
         if message.chat.id in self.admin_date["Admin"]:
             print(f"管理员{message.chat.username}启动外置键盘     {time.ctime()}")
             markup.add(itembtn1, itembtn2, itembtn3, itembtn4, itembtn5, itembtn6, itembtn7, itembtn8, itembtn9,
-                       itembtn10, itembtn11, itembtn12, itembtn13,itembtn14)
+                       itembtn10, itembtn11, itembtn12, itembtn13, itembtn14,itembtn15)
         elif message.chat.id in self.admin_date["user"]:
             print(f"用户{message.chat.username}启动外置键盘     {time.ctime()}")
-            markup.add(itembtn7, itembtn8, itembtn9, itembtn10, itembtn11, itembtn12, itembtn13,itembtn14)
+            markup.add(itembtn7, itembtn8, itembtn9, itembtn10, itembtn11, itembtn12, itembtn13, itembtn14,itembtn15)
         bot.send_message(message.chat.id, "外置键盘启动", reply_markup=markup)
+
 
 # 权限管理机制
 class authorityManagement:
@@ -280,6 +284,7 @@ class rehtml():
 
     def server_web_html_command(self):
         if self.command == "查看落地页网址":
+
             try:
                 self.server_web_html()
                 str_html = str(self.server_web)
@@ -531,7 +536,7 @@ class file_html:
                 immediate_subdirectories.append(entry)
         sefl.file_lists = immediate_subdirectories
 
-    def file_splicing(self,file_list):
+    def file_splicing(self, file_list):
         html_files = []
         file = f"{self.path}/{file_list}"
         entries = os.listdir(file)
@@ -870,7 +875,7 @@ class html_copy:
             destDirList = os.listdir(f'{destPath}/{self.val}')  # 要复制路径的 文件夹·文件
             print("destDirList:", len(destDirList))
             if len(destDirList) == 0:
-                self.bot.send_message(self.message.chat.id ,"用户家目录不存在")
+                self.bot.send_message(self.message.chat.id, "用户家目录不存在")
             else:
                 list = str(destDirList).strip('[]').replace("'", "").replace(",", "\n")
                 self.bot.send_message(self.message.chat.id, f"已有落地页路径名称 :\n {list}")
@@ -925,16 +930,93 @@ class html_copy:
             self.bot.send_message(self.message.chat.id, "成功复制 ")
         except FileNotFoundError:
             print(f"目标路径{self.source_filepath1}不存在.")
-            self.bot.send_message(self.message.chat.id,"文件创建失败，目标路径{self.source_filepath1}不存在.")
+            self.bot.send_message(self.message.chat.id, "文件创建失败，目标路径{self.source_filepath1}不存在.")
         except PermissionError:
             print(f"Error: 权限无法访问{target_file_path}.")
-            self.bot.send_message(self.message.chat.id,"权限无法访问，请确认路径是否正确")
+            self.bot.send_message(self.message.chat.id, "权限无法访问，请确认路径是否正确")
         except Exception as e:
             print(f"未知错误: {e}")
-            self.bot.send_message(self.message.chat.id,"未知错误，请检查指令是否正确")
+            self.bot.send_message(self.message.chat.id, "未知错误，请检查指令是否正确")
         except Exception as e:
             print(f'创建文件夹 失败 ，{e} {time.ctime()}')
-            self.bot.send_message(self.message.chat.id,"文件创建失败，请检查路径是否正确(当前版本下：若网页路径已存在，也会创建失败可以使用“*查看网页路径”查看)")
+            self.bot.send_message(self.message.chat.id,
+                                  "文件创建失败，请检查路径是否正确(当前版本下：若网页路径已存在，也会创建失败可以使用“*查看网页路径”查看)")
+
+
+#  域名/us/eng固定(在使用情况下落地页域名不变内容可切换)可随时将落地页内容切换成us2,us3
+class changeWeb:
+    def __init__(self,bot,message):
+        self.bot = bot
+        self.id = message.chat.id
+        self.message = message
+        self.command = message.text.split(' ', 1)[0][1:]
+        self.path = Template_HTML
+        self.file_html = File_HTEML
+        self.userCommand()      #入口
+
+
+    def userCommand(self):
+        if self.command == '模板切换':
+            self.area_list=self.list_user_html()
+            output = str(self.area_list).strip('[]').replace("'",'').replace(',','\n')
+            if output != "":
+                self.bot.send_message(self.id, f'您现有域名:\n{output}')
+                self.bot.send_message(self.id,'您要固定的域名:')
+                self.bot.register_next_step_handler(self.message,self.next_step_clear)
+            else:
+                self.bot.send_message(self.id,f'您当前域名为空，请复制模板')
+
+    def next_step_clear(self,message):
+        self.bot.send_chat_action(message.chat.id, 'typing')
+        command=message.text
+        idn = userNumber_id(str(self.id))
+        dictionary = idn.id_date
+        self.val = chr(dictionary[f'{str(self.id)}'])
+        self.userfile = f'{File_HTEML}/{self.val}/{command}'
+        destDirList = os.listdir(Template_HTML)  # 要复制路径的 文件夹·文件
+        self.list = str(destDirList).strip('[]').replace("'", "").replace(",", "\n")
+        if command in self.area_list:
+            self.clear_DirContent(self.userfile)
+            self.bot.send_message(self.message.chat.id, f"已有模板名称:\n {self.list}")
+            self.bot.send_message(self.id, '你想切换的网页模板:')
+            self.bot.register_next_step_handler(message,self.next_copy_web)
+        else:
+            self.bot.send_message(self.id,'您要固定的域名不存在')
+
+
+    def next_copy_web(self,message):
+        self.bot.send_chat_action(message.chat.id, 'typing')
+        command = message.text
+        idn = userNumber_id(str(self.id))
+        dictionary = idn.id_date
+        self.val = chr(dictionary[f'{str(self.id)}'])       # 拿到userId对应的像素字母
+        if  command in self.list:
+            self.htmlFile=f'{Template_HTML}/{command}'
+            self.copy_Module(self.htmlFile,self.userfile)
+            self.bot.send_message(self.id,'切换成功')
+        else:
+            self.bot.send_message(self.id,'无您所需要的模板')
+
+
+    def list_user_html(self):   # 列出当前用户模板的文件夹
+        idn = userNumber_id(str(self.id))
+        dictionary = idn.id_date
+        self.val = chr(dictionary[f'{str(self.id)}'])
+        basket=os.listdir(f'{File_HTEML}/{self.val}')
+        return basket
+
+
+
+
+    def clear_DirContent(self,destPath):    #清空目录中的内容
+        shutil.rmtree(destPath)        #要删除的目标文件集
+
+    def copy_Module(self,WebModule_in,WebModule_out):   #复制的网页模板
+        try:
+            # 复制模板
+            shutil.copytree(WebModule_in, WebModule_out)
+        except Exception as e:
+            print(f'复制模板失败{e}      {os.times()}')
 
 
 if __name__ == '__main__':
