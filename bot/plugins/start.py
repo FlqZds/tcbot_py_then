@@ -389,8 +389,11 @@ class meat:
             self.json_open()
             date = str(self.intjson['mate'][f'{self.id}'])
             # 不显示前七个字符
-            date = date.strip("{}").replace(",", "\n")[18:]
-            self.bot.send_message(self.message.chat.id, date)
+            if date is None:
+                self.bot.send_message(self.message.chat.id, '像素列表为空')
+            else:
+                date = date.strip("{}").replace(",", "\n")[18:]
+                self.bot.send_message(self.message.chat.id, date)
 
     def __file_html_in(self, message):
         file = file_html(message)
@@ -716,13 +719,30 @@ class webModules:
             webTamplate_list = os.listdir(f'{destPath}')  # 找到用户所有的模板 导出为列表
             if f'{self.cmd}' in webTamplate_list:  # 判断删除的目标是否在工作列表中
                 shutil.rmtree(f'{destPath}/{self.cmd}')
-                self.bot.send_message(self.message.chat.id, "模板删除成功")
-                print(f'删除网页成功   {time.ctime()}')
+                self.meat_del(self.id)
+                self.bot.send_message(self.message.chat.id, "模板以及所带像素删除成功")
+                print(f'删除网页和所属像素成功   {time.ctime()}')
             else:
                 print(f'未找到相关模板目录，请确认删除command指令')
         except Exception as e:
             print(f'模板文件夹删除失败 ，{e} {time.ctime()}')
 
+    def meat_del(self, id):
+        self.json_open()
+        id = str(self.id)
+        if id in self.intjson['mate']:
+            del self.intjson['mate'][f'{id}'][f'{self.cmd}/eng']
+            self.server_id(self.intjson)
+            print(f'用户已删除 {self.cmd}中的像素   {time.ctime()}')
+
+    def json_open(self):  # 读取user中的id字典
+        self.DateFile = DateFile
+        with open(self.DateFile, mode='r', encoding='utf-8') as f:
+            self.intjson = json.load(f)
+
+    def server_id(self, writed_Data):  # 将内存数据写入json
+        with open(file=self.DateFile, mode='w', encoding='utf-8') as date:
+            date.write(json.dumps(writed_Data, ensure_ascii=False))
 
 class userNumber_id:
     """
@@ -808,7 +828,8 @@ class pixelsList:
         # 如果判断username没在mate里，就建立新的“userid”字典，并添加当前所要添加的像素id
         else:
             print(f'用户id不存在，创建id表   {time.ctime()}')
-            self.intjson['mate'][user_id] = {f"{page_url}": {}}
+            if user_id in user_ids:
+                self.intjson['mate'][user_id] = {f"{page_url}": {}}
             self.intjson['mate'][user_id][page_url] = {"0": ""}
             self.pixelID = str(int(max(self.intjson['mate'][user_id][page_url].keys())) + 1)
             self.intjson['mate'][user_id][page_url].update({self.pixelID: pixelContent})
