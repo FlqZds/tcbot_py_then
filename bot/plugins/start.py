@@ -392,14 +392,17 @@ class meat:
     def mate_list(self):
         if self.command == "像素列表":
             self.json_open()
-            date = str(self.intjson['mate'][f'{self.id}'])
-            # 不显示前七个字符
-            if date is None:
+            try:
+                date = str(self.intjson['mate'][f'{self.id}'])
+                # 不显示前七个字符
+                if date is None:
+                    self.bot.send_message(self.message.chat.id, '像素列表为空')
+                else:
+                    date = date.strip("{}").replace(",", "\n").replace("'", "").replace("{", "").replace("}", "").replace("0:","")
+                    self.bot.send_message(self.message.chat.id,f"目前已有像素:\n{date}")
+            except Exception as e:
+                print(f'用户可能未添加过像素{e}           {time.ctime()}')
                 self.bot.send_message(self.message.chat.id, '像素列表为空')
-            else:
-                date = date.strip("{}").replace(",", "\n").replace("'", "").replace("{", "").replace("}", "").replace("0:","")
-                self.bot.send_message(self.message.chat.id,f"目前已有像素:\n{date}")
-
     def __file_html_in(self, message):
         file = file_html(message)
         lists = file.splicing()
@@ -811,7 +814,7 @@ class pixelsList:
         self.DateFile = DateFile
         with open(self.DateFile, mode='r', encoding='utf-8') as f:
             self.intjson = json.load(f)
-            print(f'json打印：{self.intjson} \n    {time.ctime()}')
+            # print(f'json打印：{self.intjson} \n    {time.ctime()}')
 
     def server_id(self, writed_Data):  # 将内存数据写入json
         with open(file=self.DateFile, mode='w', encoding='utf-8') as date:
@@ -841,9 +844,9 @@ class pixelsList:
             self.pixelID = str(int(max(self.intjson['mate'][user_id][page_url].keys())) + 1)
             self.intjson['mate'][user_id][page_url].update({self.pixelID: pixelContent})
             self.server_id(self.intjson)
-            print(self.intjson)
+            # print(self.intjson)
             self.server_id(self.intjson)
-            print(self.intjson)
+            # print(self.intjson)
 
     # 用于删除用户指定网页中的像素
     def del_pix(self, userId, pixelID):
