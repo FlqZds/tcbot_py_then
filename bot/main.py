@@ -58,10 +58,10 @@ def handler_all_mod(message):
         command  = message.text.split(' ',1)[0][1:]
         for plugin in plugins:
             if plugin.command == command:
-                plugin.handler_command(bot,message)
+                plugin.handler_command(bot,message)      #执行命令
     else:
         for plugin in plugins:
-            plugin.handle_message(bot, message)
+            plugin.handle_message(bot, message)          #处理文本消息
 
 
 #内嵌键盘中callback_data的处理

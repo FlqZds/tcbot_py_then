@@ -22,11 +22,13 @@ class StartPlugin(PluginInterface):
         markup = types.InlineKeyboardMarkup()
         # itembtn1 = types.InlineKeyboardButton('tcmiku的档案库', url='https://tcmiku.github.io')
         # 返回callback_data一个 1-64字节的数据
-        itembtn2 = types.InlineKeyboardButton('帮助信息', callback_data="help")
-        markup.add(itembtn2)
+        itembtn2 = types.InlineKeyboardButton(text='帮助信息', callback_data="help")
+        markup.add(itembtn2)  #内置键盘启动
         # 根据当前用户id创建家目录
         page = userpage(bot, message)
         page.create_dir()
+
+
         # 外置键盘设置
         show_button = button()
         show_button.open_admin(bot, message)
@@ -57,14 +59,15 @@ class StartPlugin(PluginInterface):
             if message.text.startswith('!'):
                 systeams = systeam(bot, message)
             elif message.text.startswith('#'):
-                admin = authorityManagement(bot, message)
-            elif message.text.startswith('*'):
+                admin = authorityManagement(bot, message)   # 管理员就#
+            elif message.text.startswith('*'):   # 做的事
                 jumpurl = rehtml(bot, message)
                 meatadd = meat(bot, message)
                 copy_htmls = webModules(bot, message)
                 copy_enghtml = html_copy(bot, message)
                 chang = changeWeb(bot,message)
-        elif date == 'user':
+                var = PrintText(bot, message)
+        elif date == 'user':                                # 用户就*
             # 用户可使用命令
             if message.text.startswith('*'):
                 jumpurl = rehtml(bot, message)
@@ -72,6 +75,7 @@ class StartPlugin(PluginInterface):
                 copy_htmls = webModules(bot, message)
                 copy_enghtml = html_copy(bot, message)
                 chang = changeWeb(bot, message)
+                var = PrintText(bot, message)
         else:
             bot.send_message(message.chat.id, "您没有该权限")
 
@@ -106,13 +110,14 @@ class button:
         itembtn13 = types.KeyboardButton("*加像素")
         itembtn14 = types.KeyboardButton("*像素列表")
         itembtn15 = types.KeyboardButton("*模板切换")
+        itembtn16 = types.KeyboardButton("*输出")
         if message.chat.id in self.admin_date["Admin"]:
             print(f"管理员{message.chat.username}启动外置键盘     {time.ctime()}")
             markup.add(itembtn1, itembtn2, itembtn3, itembtn4, itembtn5, itembtn6, itembtn7, itembtn8, itembtn9,
-                       itembtn10, itembtn11, itembtn12, itembtn13, itembtn14,itembtn15)
+                       itembtn10, itembtn11, itembtn12, itembtn13, itembtn14,itembtn15,itembtn16)
         elif message.chat.id in self.admin_date["user"]:
             print(f"用户{message.chat.username}启动外置键盘     {time.ctime()}")
-            markup.add(itembtn7, itembtn8, itembtn9, itembtn10, itembtn11, itembtn12, itembtn13, itembtn14,itembtn15)
+            markup.add(itembtn7, itembtn8, itembtn9, itembtn10, itembtn11, itembtn12, itembtn13, itembtn14,itembtn15,itembtn16)
         bot.send_message(message.chat.id, "外置键盘启动", reply_markup=markup)
 
 
@@ -138,7 +143,7 @@ class authorityManagement:
     def __read_admin(self):
         with open(file=self.DateFile, mode='r', encoding='utf-8') as date:
             self.admin_date = json.load(date)
-        self.admin_date
+
 
     def __admin_show(self):
         if self.command == '管理员列表':
@@ -220,39 +225,17 @@ class authorityManagement:
         with open(self.DateFile, mode='w', encoding='utf-8') as f:
             json.dump(self.admin_date, f, ensure_ascii=False)
 
-
-class systeam:
-    def __init__(self, bot, message):
-        self.bot = bot
+class PrintText:
+    def __init__(self,bot,message):
         self.message = message
-        self.command = message.text.split(' ', 1)[0][1:]
-        self.__git_systeam_cpu()
-
-    def __git_systeam_cpu(self):
-        bt = bt_api()
-        if self.command == '获取系统信息':
-            systeam = bt.bt_systeam()
-            sys_out = f"当前系统为:{systeam['system']}\nCPU核心数:{systeam['cpuNum']}\n"
-            self.bot.send_message(self.message.chat.id, sys_out)
-
-
-class bt_api:
-    def __init__(self):
-        self.Url = URL
-        self.Key = KEY
-
-    def bt_systeam(self):
-        systeam_api = System(self.Url, self.Key)
-        sys = systeam_api.get_system_total()
-        return sys
-
-    def bt_web(self):
-        websites = Sites(self.Url, self.Key)
-        webname = websites.websites()
-        print(webname)
-        web_index = websites.web_get_index(webname['data'][0]['name'])
-        print(web_index)
-
+        self.bot = bot
+        self.id = message.chat.id
+        self.command = message.text.split()[0][1:]
+        self.print_message()
+    def print_message(self):
+        if self.command=='输出':
+            self.bot.send_message(self.message.chat.id,f"输出的信息为您的id:{self.message.chat.id}")
+            self.bot.send_message(self.message.chat.id, f"操作结束，请选择您的下一个插件")
 
 class rehtml():
     def __init__(self, bot, message):
@@ -437,46 +420,8 @@ class meat:
     def openhtml(self):
         with open(self.file_html, mode='r', encoding="utf-8") as f:
             self.html_content = f.read()
-
+    # 替换落地页的  --改跳转
     def bs4(self):
-        # # 使用BeautifulSoup解析HTML内容
-        # soup = BeautifulSoup(self.html_content, 'html.parser')
-        #
-        # # 查找所有的<script>标签
-        # script_tags = soup.find_all('script')
-        #
-        # # 遍历每个<script>标签并修改fbq('init', '原像素ID')
-        # for script_tag in script_tags:
-        #     # 获取<script>标签的文本内容
-        #     script_content = script_tag.string
-        #     if script_content:
-        #         # 使用正则表达式替换fbq('init', '原像素ID')中的ID
-        #         pattern = r"fbq\('init', '\d+'\);"
-        #         new_content = re.sub(pattern, f"fbq('init', '{self.meat}');", script_content)
-        #         # 将修改后的内容设置回<script>标签
-        #         script_tag.string.replace_with(BeautifulSoup(new_content, 'html.parser').string)
-        #
-        #         # 查找<noscript>标签并修改其中的src属性
-        # # 查找<noscript>标签内的<img>标签
-        # noscript_tags = soup.find_all('noscript')
-        # for noscript in noscript_tags:
-        #     img_tags = noscript.find_all('img')
-        #     for img in img_tags:
-        #         # 提取src属性的值
-        #         src_value = img['src']
-        #         # 使用正则表达式找到id参数的值
-        #         match = re.search(r'id=(\d+)', src_value)
-        #         if match:
-        #             # 提取id参数中的数字
-        #             old_id = match.group(1)
-        #             # 假设我们有一个新的id值
-        #             new_id = self.meat  # 替换为你想要的新id值
-        #             # 替换src中的旧id为新id，同时保持其他部分不变
-        #             new_src_value = src_value.replace(f'id={old_id}', f'id={new_id}')
-        #             # 更新<img>标签的src属性值
-        #             img['src'] = new_src_value
-        # # 将修改后的内容编码为字符串
-
         # 使用BeautifulSoup解析HTML
         soup = BeautifulSoup(self.html_content, 'html.parser')
         # 创建一个新的script标签并设置内容
@@ -532,7 +477,7 @@ class file_html:
 
     def list_immediate_subdirectories(sefl):
         immediate_subdirectories = []
-        entries = os.listdir(sefl.path)
+        entries = os.listdir(sefl.path)  # 列出这个文件夹下的所有文件和文件夹
         for entry in entries:
             path = os.path.join(sefl.path, entry)
             if os.path.isdir(path):
@@ -584,6 +529,7 @@ class template_html:
                 immediate_subdirectories.append(entry)
         sefl.file_lists = immediate_subdirectories
 
+# 看你是否是一个html，是的话就返回
     def file_splicing(self):
         html_files = []
         for file_list in self.file_lists:
@@ -594,7 +540,7 @@ class template_html:
                 # 检查这个路径是否是一个文件
                 if os.path.isfile(full_path) and full_path.endswith('.html'):
                     html_files.append(full_path)
-        self.html_file_names = [os.path.basename(path) for path in html_files]
+        self.html_file_names = [os.path.basename(path) for path in html_files] #从html_files列表中的每个路径提取文件名，并将这些文件名存储在self.html_file_names属性中
 
     def splicing(self):
         i = 0
@@ -755,7 +701,7 @@ class webModules:
 
 class userNumber_id:
     """
-    用户id对应字符
+    用户id对应的字符
     """
 
     def __init__(self, userid):
@@ -1021,6 +967,39 @@ class changeWeb:
             shutil.copytree(WebModule_in, WebModule_out)
         except Exception as e:
             print(f'复制模板失败{e}      {os.times()}')
+
+
+class systeam:
+    def __init__(self, bot, message):
+        self.bot = bot
+        self.message = message
+        self.command = message.text.split(' ', 1)[0][1:]
+        self.__git_systeam_cpu()
+
+    def __git_systeam_cpu(self):
+        bt = bt_api()
+        if self.command == '获取系统信息':
+            systeam = bt.bt_systeam()
+            sys_out = f"当前系统为:{systeam['system']}\nCPU核心数:{systeam['cpuNum']}\n"
+            self.bot.send_message(self.message.chat.id, sys_out)
+
+# 这个没啥用
+class bt_api:
+    def __init__(self):
+        self.Url = URL
+        self.Key = KEY
+
+    def bt_systeam(self):
+        systeam_api = System(self.Url, self.Key)
+        sys = systeam_api.get_system_total()
+        return sys
+
+    def bt_web(self):
+        websites = Sites(self.Url, self.Key)
+        webname = websites.websites()
+        print(webname)
+        web_index = websites.web_get_index(webname['data'][0]['name'])
+        print(web_index)
 
 
 if __name__ == '__main__':

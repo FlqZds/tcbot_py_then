@@ -12,7 +12,7 @@ Banner = """\033[0;34m
         """
 #电报机器人配置
 
-TOKEN = "6778979605:AAEeTqyKb673S6vXKz0z8fqxtUC6Xlr3gk0"
+TOKEN = "7258558421:AAHiMUdZVbUCTgQFHNjtRlNIvq0i0uc6DVU"
 MYSQL = ""
 
 #网站模板路径
