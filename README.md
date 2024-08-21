@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # TcBot(插件驱动的TelegrmBOT)
 ## 使用说明
 使用`pip install -r ./requirements.txt`下载程序依赖
@@ -70,3 +71,7 @@
 3. 目录结构是以 plugins文件夹下的  .py  文件来 作为源目录的
 4. 
 
+=======
+# tcbot_py_then
+just tcbot
+>>>>>>> 54cf55d533e9435b732c12d7de35202380331eaa
